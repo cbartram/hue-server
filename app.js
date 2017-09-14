@@ -16,8 +16,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+//Allow CORS
+app.use((req, res, next) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    next();
+});
 
-const hue = new Hue('kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs', '192.168.0.100');
+
+const hue = new Hue('kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs', '10.0.0.129');
 
 //Routes
 app.use('/lights/action/loop', index);

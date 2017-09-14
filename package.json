@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "run-client": "cd client && npm start"
   },
   "dependencies": {
     "body-parser": "~1.17.1",
