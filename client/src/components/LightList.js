@@ -24,6 +24,7 @@ export default class LightList extends Component {
         return (
             <Card>
                 <CardHeader
+                    style={{paddingRight:'0px'}}
                     title="Lights"
                     subtitle="Current Lights"
                     actAsExpander={true}

@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/App.css';
 import _ from 'lodash';
+import {Card, CardHeader, CardText, CardActions} from "material-ui/Card";
+import {CirclePicker} from 'react-color';
+
 
 //Material UI
 import RaisedButton from 'material-ui/RaisedButton';
@@ -16,6 +19,7 @@ class App extends Component {
       this.state = {
         lights: [], //Array of Light Objects
          foo:'bar',
+         color: null, //Current color selected by the color picker
       }
   }
 
@@ -33,7 +37,7 @@ class App extends Component {
   getNames = () => {
     let result = this.state.lights;
 
-     fetch('http://localhost:3000/lights') //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+     fetch('http://hue-server.ddns.net:3000/lights') //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
           .then((response) => response.json())
           .then((responseJson) => {
               for (let key in responseJson) {
@@ -90,12 +94,28 @@ class App extends Component {
         this.setState({ lights });
     };
 
+    /**
+     * Handles Color picker being changed
+     *
+     */
+    handleColorChange = (color) => {
+      this.setState({color});
+    };
+
+    on = () => {
+
+    };
+
+    off = () => {
+
+    };
 
 
     render() {
     return (
       <div className="App">
          <div className="container-fluid">
+             <div className="row">
              <div className="col-md-12">
                  <div className="App-header">
                      <h2>Smart Lighting Control</h2>
@@ -106,11 +126,28 @@ class App extends Component {
              </div>
 
              {/* Houses the List of Lights */}
-             <div className="col-md-3 col-md-offset-2 light-list">
+             <div className="col-md-5 col-md-offset-1 light-list">
                 <LightList handleCheck={(e, checked, id) => this.handleCheck(e, checked, id) } lights={this.state.lights}/>
              </div>
-
-              <RaisedButton label="Flash" onClick={this.flash} />
+                 <div className="col-md-5 light-list">
+                     <Card>
+                         <CardText>
+                            <CirclePicker onChangeComplete={this.handleColorChange} />
+                             <div className="row padding-top">
+                                 <div className="col-md-3">
+                                     <RaisedButton label="Flash" onClick={this.flash} />
+                                 </div>
+                                 <div className="col-md-3">
+                                     <RaisedButton label="On" onClick={this.on} />
+                                 </div>
+                                 <div className="col-md-3">
+                                     <RaisedButton label="Off" onClick={this.off}/>
+                                 </div>
+                             </div>
+                         </CardText>
+                     </Card>
+                 </div>
+             </div>
          </div>
       </div>
     );
