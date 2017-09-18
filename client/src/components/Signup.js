@@ -4,7 +4,7 @@
 import React, {Component} from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
-import User from '../../../schema/Users';
+//import {User} from '../../../schema/Users.js';
 
 export default class Signup extends Component {
     constructor() {
@@ -20,14 +20,14 @@ export default class Signup extends Component {
     };
 
     handleClick = () => {
-        let user = new User();
-
-        if(this.state.username.length > 0) {
-            user.username = this.state.username;
-            user.id = Math.floor((Math.random() * 8));
-
-            user.save((err) => {});
-        }
+        // let user = new User();
+        //
+        // if(this.state.username.length > 0) {
+        //     user.username = this.state.username;
+        //     user.id = Math.floor((Math.random() * 8));
+        //
+        //     user.save((err) => {});
+        // }
     };
 
 

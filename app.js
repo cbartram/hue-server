@@ -6,9 +6,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const Hue = require('./Hue');
 
-
 let app = express();
-
 
 //Route Imports
 const index = require('./routes/index');
@@ -26,7 +24,6 @@ app.use((req, res, next) => {
 });
 
 mongoose.createConnection(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`);
-
 
 const hue = new Hue('kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs', '10.0.0.129');
 // Marshall’s Hue: 10.0.0.20 - VaEYVOExonOd0QkHSM3TZp0hBoAtpe-sxEbG43on
