@@ -1,43 +1,49 @@
-import React, { Component } from 'react';
+import React, { Component } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './css/App.css';
 import _ from 'lodash';
-import {Card, CardHeader, CardText, CardActions} from "material-ui/Card";
-import {CirclePicker} from 'react-color';
-
+import { CirclePicker } from 'react-color';
 
 //Material UI
 import RaisedButton from 'material-ui/RaisedButton';
+import {Card, CardText, CardHeader} from "material-ui/Card";
+import Slider from 'material-ui/Slider';
 
 //Custom Components
 import LightList from './components/LightList';
+import hueAPI from './HueAPI';
+import LoginPrompt from './components/LoginPrompt';
+
 
 class App extends Component {
   constructor() {
       super();
 
       this.state = {
-        lights: [], //Array of Light Objects
-         foo:'bar',
-         color: null, //Current color selected by the color picker
+         lights: [], //Array of Light Objects
+         brightness: 100, //Value for the Slider's brightness
+         color: null, //Current color selected by the color picker (an object of colors)
       }
   }
 
   componentDidMount = () => {
 
-    //Find Lights
-    this.getNames();
+    //TODO Set base URL to Production environment
+     hueAPI.setURL('http://localhost:3000');
+
+    //Fetch Lights
+    this.getLights();
 
   };
 
   flash = () => {
-        this.setState({foo: 'barr'});
+
   };
 
-  getNames = () => {
+  getLights = () => {
     let result = this.state.lights;
 
-     fetch('http://hue-server.ddns.net:3000/lights') //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+     fetch('http://localhost:3000/lights') //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
           .then((response) => response.json())
           .then((responseJson) => {
               for (let key in responseJson) {
@@ -73,83 +79,126 @@ class App extends Component {
      *
      */
     handleCheck = (e, checked, id) => {
+        let { lights } = this.state;
 
-        //Wrong light id is being passed....
-        console.log(id);
+        if(typeof id !== 'undefined' && id !== null) {
 
-        let lights = this.state.lights;
+            let index = _.findIndex(lights, (o) => {
+                return o.id === id;
+            });
 
-        const index = _.findIndex(lights, (o) => {
-           return o.id = id;
-        });
+            //Check or unCheck the lights
+            lights[index].state.selected = !lights[index].state.selected;
 
-        console.log(index);
+            this.setState({lights});
 
-
-        //Check or unCheck the lights
-        lights[index].selected = !lights[index].selected;
-
-        console.log(lights[index]);
-
-        this.setState({ lights });
+        } else {
+           this.toastrAlert('success');
+        }
     };
 
     /**
      * Handles Color picker being changed
-     *
+     * @param color String hex color (including the #)
      */
     handleColorChange = (color) => {
-      this.setState({color});
+      this.setState({color}, () => {
+          //Strip hash sign away from color
+          color = color.hex.substr(1, color.length);
+          hueAPI.setColor(color);
+      });
     };
 
+    /**
+     * Turns all the lights on
+     */
     on = () => {
-
+        hueAPI.on();
     };
 
+    /**
+     * Turns all Lights off
+     */
     off = () => {
+        hueAPI.off();
+    };
 
+    /**
+     * Set the brightness for each light
+     * @param e Event event object e
+     * @param value int value between [0, 254]
+     */
+    handleBrightness = (e, value) => {
+        this.state.lights.forEach(light => {
+            hueAPI.setBrightness(light.key, value);
+        });
+
+        this.setState({ brightness: value });
     };
 
 
     render() {
     return (
-      <div className="App">
-         <div className="container-fluid">
-             <div className="row">
-             <div className="col-md-12">
-                 <div className="App-header">
-                     <h2>Smart Lighting Control</h2>
-                     <p className="App-intro">
-                         Check out some controls below
-                     </p>
+          <div className="App">
+             <div className="container-fluid">
+                 <div className="row">
+                 <div className="col-md-12">
+                     <div className="App-header">
+                         <h2>Smart Lighting Control</h2>
+                         <p className="App-intro">
+                             Check out some controls below
+                         </p>
+                     </div>
                  </div>
-             </div>
 
-             {/* Houses the List of Lights */}
-             <div className="col-md-5 col-md-offset-1 light-list">
-                <LightList handleCheck={(e, checked, id) => this.handleCheck(e, checked, id) } lights={this.state.lights}/>
-             </div>
-                 <div className="col-md-5 light-list">
-                     <Card>
-                         <CardText>
-                            <CirclePicker onChangeComplete={this.handleColorChange} />
-                             <div className="row padding-top">
-                                 <div className="col-md-3">
-                                     <RaisedButton label="Flash" onClick={this.flash} />
+                 <LoginPrompt/>
+
+                 {/* Houses the List of Lights */}
+                 <div className="col-md-5 col-md-offset-1 light-list">
+                    <LightList handleCheck={(e, checked, id) => this.handleCheck(e, checked, id) } lights={this.state.lights}/>
+                 </div>
+                     <div className="col-md-5 light-list">
+                         <Card>
+                             <CardText>
+                                <CirclePicker onChangeComplete={this.handleColorChange} />
+                                 <div className="row padding-top">
+                                     <div className="col-md-3">
+                                         <RaisedButton label="Flash" onClick={this.flash} />
+                                     </div>
+                                     <div className="col-md-3">
+                                         <RaisedButton label="On" onClick={this.on} />
+                                     </div>
+                                     <div className="col-md-3">
+                                         <RaisedButton label="Off" onClick={this.off}/>
+                                     </div>
                                  </div>
-                                 <div className="col-md-3">
-                                     <RaisedButton label="On" onClick={this.on} />
-                                 </div>
-                                 <div className="col-md-3">
-                                     <RaisedButton label="Off" onClick={this.off}/>
-                                 </div>
-                             </div>
-                         </CardText>
-                     </Card>
+                             </CardText>
+                         </Card>
+                     </div>
+                 </div>
+                 {/* Card for Brightness */}
+                 <div className="row">
+                     <div className="col-md-5 col-md-offset-6 light-list">
+                         <Card>
+                             <CardHeader
+                                 style={{float:'left'}}
+                                 title="Brightness"
+                             />
+
+                             <CardText>
+                                 <Slider
+                                     min={0}
+                                     max={254}
+                                     step={1}
+                                     value={this.state.brightness}
+                                     onChange={this.handleBrightness}
+                                 />
+                             </CardText>
+                         </Card>
+                     </div>
                  </div>
              </div>
-         </div>
-      </div>
+          </div>
     );
   }
 }

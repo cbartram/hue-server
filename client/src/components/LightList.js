@@ -2,8 +2,7 @@
  * Created by christianbartram on 9/13/17.
  */
 import React, {Component} from 'react';
-import {Card, CardHeader, CardText, CardActions} from "material-ui/Card";
-import FlatButton from 'material-ui/FlatButton';
+import {Card, CardHeader, CardText} from "material-ui/Card";
 import Lights from './Lights';
 
 
@@ -16,15 +15,10 @@ export default class LightList extends Component {
         };
     }
 
-    componentDidMount = () => {
-
-    };
-
     render() {
         return (
             <Card>
                 <CardHeader
-                    style={{paddingRight:'0px'}}
                     title="Lights"
                     subtitle="Current Lights"
                     actAsExpander={true}

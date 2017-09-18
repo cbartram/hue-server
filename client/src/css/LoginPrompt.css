@@ -1,0 +1,17 @@
+.background {
+    color: #2b2d38;
+    background: #f9faff;
+    font-weight: 400;
+    font-size: 14px;
+}
+
+.header-text {
+    color: #8189a9;
+    font-size:25px;
+    margin-bottom:20px;
+}
+
+
+.button-primary {
+    background-color:#15c39a;
+}

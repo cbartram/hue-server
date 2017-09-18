@@ -3,10 +3,12 @@ const path = require('path');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const Hue = require('./Hue');
 
 
 let app = express();
+
 
 //Route Imports
 const index = require('./routes/index');
@@ -23,8 +25,13 @@ app.use((req, res, next) => {
     next();
 });
 
+mongoose.createConnection(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`);
+
 
 const hue = new Hue('kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs', '10.0.0.129');
+// Marshall’s Hue: 10.0.0.20 - VaEYVOExonOd0QkHSM3TZp0hBoAtpe-sxEbG43on
+// My Hue: 10.0.0.129 - kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs
+// Zak’s Hue 10.0.0.16 - vm5UwMtfQFno6IBQAOfZd5rlbO14wlcPn-7RfJ4A
 
 //Routes
 app.use('/lights/action/loop', index);
@@ -53,6 +60,11 @@ app.get('/off', (req, res) => {
     });
 });
 
+app.get('/color/:color', (req, res) => {
+   hue.setColorAll(req.param('color'), (data) => {
+       res.json(data);
+   });
+});
 
 app.get('/lights/:id', (req, res) => {
    hue.getLight(req.param('id'), (data) => {
@@ -72,6 +84,23 @@ app.get('/lights/:id/color/:color', (req, res) => {
 app.get('/sync', (req, res) => {
     res.json(hue.sync());
 });
+
+app.post('/lights/:id/brightness/', (req, res) => {
+   const value = req.body.bri;
+
+   hue.setBrightness(req.param('id'), value, (data) => {
+       res.json(data);
+   })
+});
+
+app.post('/lights/action/brightness/', (req, res) => {
+    const value = req.body.bri;
+
+    hue.setAllBrightness(value, (data) => {
+        res.json(data);
+    })
+});
+
 
 app.post('/lights/action/on', (req, res) => {
    const ids = req.body.ids;
@@ -95,6 +124,22 @@ app.post('/lights/action/off', (req, res) => {
     if(typeof ids !== 'undefined' && ids.length > 0) {
         ids.map(id => {
             hue.off(id, () => {});
+        });
+
+        res.json({success: true});
+
+    } else {
+        res.json({error: 'No "ids" array provided in body of POST Request'})
+    }
+});
+
+app.post('/lights/action/color', (req, res) => {
+    const ids = req.body.ids;
+    const color = req.body.color;
+
+    if(typeof ids !== 'undefined' && ids.length > 0) {
+        ids.map(id => {
+            hue.setColorHex(id, color, () => {})
         });
 
         res.json({success: true});

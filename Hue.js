@@ -91,6 +91,36 @@ class Hue {
     }
 
     /**
+     * Sets the brightness of a specific light
+     * @param id String light id
+     * @param value String value of the brightness 0, 254
+     * @param callback Function callback
+     */
+    setBrightness(id, value, callback) {
+        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, bri: value }).then((response) => {
+            callback(response.getBody());
+        });
+    }
+
+    /**
+     * Sets all Light Brightness
+     * @param value int value of the brightness 0, 254 inclusive
+     * @param callback Function callback
+     */
+    setAllBrightness(value, callback) {
+        this.getLights(data => {
+            //For each light
+            for(let key in data) {
+                if(data.hasOwnProperty(key)) {
+                    this.setBrightness(key, value, (c) => {
+                        callback({success: true, bri: value});
+                    })
+                }
+            }
+        })
+    }
+
+    /**
      * Turns all the Lights on
      * @param callback
      */

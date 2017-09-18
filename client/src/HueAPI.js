@@ -1,9 +1,21 @@
 /**
  * Created by christianbartram on 9/13/17.
  */
+let BASE_URL = "http://hue-server.ddns.net:3000";
+
+
 module.exports = {
+
+  setURL(url) {
+      BASE_URL = url;
+  },
+
+  getURL() {
+      return BASE_URL;
+  },
+
   on() {
-      fetch('http://hue-server.ddns.net:3000/lights/on') //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+      fetch(`${BASE_URL}/on`) //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
           .then((response) => response.json())
           .then((responseJson) => {
               //Do something with response
@@ -13,13 +25,37 @@ module.exports = {
   },
 
   off() {
-      fetch('http://hue-server.ddns.net:3000/lights/off') //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+      fetch(`${BASE_URL}/off`) //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
           .then((response) => response.json())
           .then((responseJson) => {
               //Do something with response
           }).catch((error) => {
           console.error(error);
       });
+  },
+
+  setColor(color) {
+      fetch(`${BASE_URL}/color/${color}`) //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+          .then((response) => response.json())
+          .then((responseJson) => {
+              //Do something with response
+          }).catch((error) => {
+          console.error(error);
+      });
+  },
+
+
+  setBrightness(id, value) {
+      fetch(`${BASE_URL}/lights/${id}/brightness`, {
+          method: 'POST',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              bri: value,
+          })
+      })
   }
 
 };
