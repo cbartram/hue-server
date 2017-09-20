@@ -5,7 +5,7 @@ import App from './App';
 import Signup from './components/Signup';
 import Login from './components/Login';
 import registerServiceWorker from './registerServiceWorker';
-import { BrowserRouter, Route, Switch } from 'react-router-dom';
+import { BrowserRouter, Route } from 'react-router-dom';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
 
