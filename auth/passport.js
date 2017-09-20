@@ -6,13 +6,12 @@ const User = require('../models/User.js');
 
 module.exports = (passport) => {
 
-    passport.serializeUser(function(user, done) {
+    passport.serializeUser((user, done) => {
         done(null, user);
     });
 
     passport.deserializeUser(function(user, done) {
         console.log('User is being deserialized');
-        console.log('User2', user);
         User.findOne({username: user.username}, function(err, user) {
             done(err, user);
         });
@@ -71,7 +70,14 @@ module.exports = (passport) => {
                 return done(null, false, { message: 'Incorrect password.' });
             }
 
-            return done(null, user);
+            req.login(user, function(err) {
+                if (err) {
+                    done(err);
+                } else {
+                    return done(null, user);
+                }
+            });
+
         });
 
     }));

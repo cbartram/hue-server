@@ -6,6 +6,7 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import AppBar from 'material-ui/AppBar';
 import {Redirect} from 'react-router-dom';
+import IconButton from 'material-ui/IconButton';
 
 export default class Signup extends Component {
     constructor() {
@@ -17,6 +18,10 @@ export default class Signup extends Component {
             redirect: false //Determines if we should redirect after successful signup
         }
     }
+
+    componentDidMount = () => {
+      sessionStorage.getItem('user') !== null && this.setState({ redirect: true });
+    };
 
     handleChange = (e, value) => {
         this.setState({username: value});
@@ -39,17 +44,25 @@ export default class Signup extends Component {
                 password: this.state.password,
             })
         }).then(res => res.json()).then((json) => {
-            this.setState({redirect: true})
+            if(json.success) {
+                //Log them in as well
+                sessionStorage.setItem('user', JSON.stringify(json.user));
+                this.setState({redirect: true})
+            }
         })
     };
 
+    handleBackClick = () => {
+        console.log('Clicked');
+        this.setState({redirect: true});
+    };
 
     render() {
         return (
             <div className="container-fluid">
                 <AppBar
                     title="Signup"
-                    iconClassNameRight="muidocs-icon-navigation-expand-more"
+                    iconClassNameLeft={<IconButton onClick={this.handleBackClick} />}
                 />
                 <div className="row">
                     <div className="col-md-4 col-md-offset-5">

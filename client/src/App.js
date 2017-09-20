@@ -13,6 +13,7 @@ import Slider from 'material-ui/Slider';
 import LightList from './components/LightList';
 import hueAPI from './HueAPI';
 import LoginPrompt from './components/LoginPrompt';
+import SetupPrompt from './components/SetupPrompt';
 
 
 class App extends Component {
@@ -23,6 +24,9 @@ class App extends Component {
          lights: [], //Array of Light Objects
          brightness: 100, //Value for the Slider's brightness
          color: null, //Current color selected by the color picker (an object of colors)
+         user: JSON.parse(sessionStorage.getItem('user')),
+         isLoggedIn: false,
+         requiresSetup: true,
       }
   }
 
@@ -33,6 +37,12 @@ class App extends Component {
 
     //Fetch Lights
     this.getLights();
+
+    //Check user login status & if they need to go through the setup process
+    sessionStorage.getItem('user') !== null && this.setState({isLoggedIn: true});
+    if(typeof JSON.parse(sessionStorage.getItem('user')).key !== 'undefined') {
+        this.setState({requiresSetup: false});
+    }
 
   };
 
@@ -92,8 +102,6 @@ class App extends Component {
 
             this.setState({lights});
 
-        } else {
-           this.toastrAlert('success');
         }
     };
 
@@ -151,7 +159,8 @@ class App extends Component {
                      </div>
                  </div>
 
-                 <LoginPrompt/>
+                 {!this.state.isLoggedIn ? <LoginPrompt/> : null}
+                 {this.state.requiresSetup ? <SetupPrompt/> : null}
 
                  {/* Houses the List of Lights */}
                  <div className="col-md-5 col-md-offset-1 light-list">
@@ -184,7 +193,6 @@ class App extends Component {
                                  style={{float:'left'}}
                                  title="Brightness"
                              />
-
                              <CardText>
                                  <Slider
                                      min={0}

@@ -5,6 +5,7 @@ import React, {Component} from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import AppBar from 'material-ui/AppBar';
+import IconButton from 'material-ui/IconButton';
 import {Redirect} from 'react-router-dom';
 
 export default class Login extends Component {
@@ -18,6 +19,11 @@ export default class Login extends Component {
             errorText: null,
         }
     }
+
+    componentDidMount = () => {
+      //If a user is already logged in redirect them back
+      sessionStorage.getItem('user') !== null && this.setState({redirect: true});
+    };
 
     handleChange = (e, value) => {
         this.setState({username: value});
@@ -44,10 +50,14 @@ export default class Login extends Component {
             if(!json.success) {
                 this.setState({errorText: json.msg});
             } else {
-                sessionStorage.setItem('user', json.user);
+                sessionStorage.setItem('user', JSON.stringify(json.user));
                 this.setState({redirect: true});
             }
         })
+    };
+
+    handleBackClick = () => {
+      this.setState({redirect: true});
     };
 
 
@@ -56,7 +66,7 @@ export default class Login extends Component {
             <div className="container-fluid">
                 <AppBar
                     title="Login"
-                    iconClassNameRight="muidocs-icon-navigation-expand-more"
+                    iconClassNameLeft={<IconButton onClick={this.handleBackClick} />}
                 />
                 <div className="row">
                     <div className="col-md-4 col-md-offset-5">

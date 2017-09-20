@@ -7,6 +7,7 @@ const Hue = require('./Hue');
 const passport = require('passport');
 const mongoose = require('mongoose');
 const session = require('express-session');
+const _ = require('lodash');
 require('./auth/passport')(passport);
 
 let app = express();
@@ -18,9 +19,13 @@ mongoose.connect(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-da
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
+app.use(session({
+    secret: 'pizzafrogscelerycustomerflag',
+    resave: false,
+    saveUninitialized: true,
+}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use(session({ secret: 'pizzafrogscelerycustomerflag', resave: true, saveUninitialized: true }));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -36,24 +41,20 @@ const hue = new Hue('kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs', '10.0.0.129');
 // My Hue: 10.0.0.129 - kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs
 // Zak’s Hue 10.0.0.16 - vm5UwMtfQFno6IBQAOfZd5rlbO14wlcPn-7RfJ4A
 
-// app.get('*', (req, res) => {
-//     res.sendFile(path.resolve(__dirname, 'client', 'public', 'index.html'));
-// });
-
 //Routes
 app.use('/lights/action/loop', index);
 
 //Signup Authentication Routes
 app.get('/signup/failure', (req, res) => { res.json({success: false, msg: 'Invalid Credentials Supplied'})});
-app.get('/signup/success', (req, res) => { res.json({success: true, user: req.user })});
-app.post('/signup', passport.authenticate('local-signup', { failureRedirect: '/signup/failure' , successRedirect: '/signup/success'}), (req, res) => {
-    res.redirect('/');
+app.post('/signup', passport.authenticate('local-signup', { failureRedirect: '/signup/failure'}), (req, res) => {
+    res.json({success: true, user: req.user });
 });
 
 //Login Authentication Routes
 app.get('/login/failure', (req, res) => { res.json({success: false, msg: 'Invalid Credentials Supplied'})});
-app.get('/login/success', (req, res) => { res.json({success: true, user: req.user })});
-app.post('/login', passport.authenticate('local-login', { failureRedirect: '/login/failure', successRedirect: '/login/success'}));
+app.post('/login', passport.authenticate('local-login', { failureRedirect: '/login/failure' }), (req, res) => {
+    res.json({success: true, user: req.user});
+});
 
 app.get('/', (req, res) => {
     hue.getAll((data) => {
