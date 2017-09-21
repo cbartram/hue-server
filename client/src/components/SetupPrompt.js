@@ -4,7 +4,7 @@
 import React, {Component} from 'react';
 import '../css/LoginPrompt.css';
 import RaisedButton from 'material-ui/RaisedButton';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 
 
@@ -14,6 +14,7 @@ export default class SetupPrompt extends Component {
 
         this.state = {
             expanded: true,
+            redirect: false,
         };
     }
 
@@ -25,7 +26,7 @@ export default class SetupPrompt extends Component {
                         <div className="background">
                             <div className="row">
                                 <div className="col-md-6 col-md-offset-3">
-                                    <h3 className="header-text">Welcome {JSON.parse(sessionStorage.getItem('user')).username}, Click the button below to setup your lights.</h3>
+                                    <h3 className="header-text">Welcome, Click the button below to setup your lights.</h3>
                                 </div>
                             </div>
                             <div className="row">

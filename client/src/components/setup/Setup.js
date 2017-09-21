@@ -9,6 +9,7 @@ import {
 } from 'material-ui/Stepper';
 import RaisedButton from 'material-ui/RaisedButton';
 import FlatButton from 'material-ui/FlatButton';
+import {Redirect} from 'react-router-dom';
 
 
 
@@ -19,8 +20,15 @@ export default class Setup extends Component {
         this.state = {
             finished: false,
             stepIndex: 0,
+            user: null,
+            redirect: false
         };
     }
+    componentDidMount = () => {
+        if(typeof JSON.parse(sessionStorage.getItem('user')) === 'undefined') {
+            this.setState({redirect: true, user: JSON.parse(sessionStorage.getItem('user'))});
+        }
+    };
 
     handleNext = () => {
         const {stepIndex} = this.state;
@@ -104,6 +112,7 @@ export default class Setup extends Component {
                         </div>
                     </div>
                 </div>
+                { this.state.redirect === false ? null : <Redirect to="/" /> }
             </div>
         )
     }

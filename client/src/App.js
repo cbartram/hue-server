@@ -10,7 +10,7 @@ import {Card, CardText, CardHeader} from "material-ui/Card";
 import Slider from 'material-ui/Slider';
 
 //Custom Components
-import LightList from './components/LightList';
+import LightList from './components/dashboard/LightList';
 import hueAPI from './HueAPI';
 import LoginPrompt from './components/LoginPrompt';
 import SetupPrompt from './components/SetupPrompt';
@@ -24,9 +24,9 @@ class App extends Component {
          lights: [], //Array of Light Objects
          brightness: 100, //Value for the Slider's brightness
          color: null, //Current color selected by the color picker (an object of colors)
-         user: JSON.parse(sessionStorage.getItem('user')),
+         user: null,
          isLoggedIn: false,
-         requiresSetup: true,
+         setupRequired: false,
       }
   }
 
@@ -39,10 +39,16 @@ class App extends Component {
     this.getLights();
 
     //Check user login status & if they need to go through the setup process
-    sessionStorage.getItem('user') !== null && this.setState({isLoggedIn: true});
-    if(typeof JSON.parse(sessionStorage.getItem('user')).key !== 'undefined') {
-        this.setState({requiresSetup: false});
-    }
+    sessionStorage.getItem('user') !== null && this.setState({isLoggedIn: true, user: JSON.parse(sessionStorage.getItem('user'))});
+
+   if(sessionStorage.getItem('user') !== null) {
+       let user = JSON.parse(sessionStorage.getItem('user'));
+
+       if(user.setupRequired) {
+           this.setState({setupRequired: true});
+           //TODO change setup status in DB to false
+       }
+   }
 
   };
 
@@ -53,7 +59,7 @@ class App extends Component {
   getLights = () => {
     let result = this.state.lights;
 
-     fetch('http://localhost:3000/lights') //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+     fetch('/lights')
           .then((response) => response.json())
           .then((responseJson) => {
               for (let key in responseJson) {
@@ -160,7 +166,7 @@ class App extends Component {
                  </div>
 
                  {!this.state.isLoggedIn ? <LoginPrompt/> : null}
-                 {this.state.requiresSetup ? <SetupPrompt/> : null}
+                 {this.state.setupRequired ? <SetupPrompt/> : null}
 
                  {/* Houses the List of Lights */}
                  <div className="col-md-5 col-md-offset-1 light-list">

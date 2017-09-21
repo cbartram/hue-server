@@ -33,7 +33,7 @@ export default class Signup extends Component {
 
     handleClick = () => {
         //Post data to server
-        fetch('http://localhost:3000/signup', { //todo change to hue-server:3000/signup
+        fetch('/signup', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json',

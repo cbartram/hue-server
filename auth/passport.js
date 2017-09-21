@@ -41,6 +41,10 @@ module.exports = (passport) => {
 
                 newUser.username = username;
                 newUser.password = newUser.hash(password);
+                newUser.key = null;
+                newUser.ip = null;
+                newUser.setupRequired = true;
+
 
                 // save the user
                 newUser.save(function (err) {

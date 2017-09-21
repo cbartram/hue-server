@@ -11,6 +11,7 @@ let Schema = mongoose.Schema({
     password    : String,
     key         : String,
     ip          : String,
+    setupRequired : Boolean
 });
 
 // methods ======================

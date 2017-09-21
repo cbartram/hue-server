@@ -9,21 +9,14 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const _ = require('lodash');
 require('./auth/passport')(passport);
-
 let app = express();
-
-//Route Imports
 const index = require('./routes/index');
-mongoose.connect(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`);
 
+mongoose.connect(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`);
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
-app.use(session({
-    secret: 'pizzafrogscelerycustomerflag',
-    resave: false,
-    saveUninitialized: true,
-}));
+app.use(session({ secret: 'pizzafrogscelerycustomerflag', resave: false, saveUninitialized: true }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
@@ -41,9 +34,11 @@ const hue = new Hue('kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs', '10.0.0.129');
 // My Hue: 10.0.0.129 - kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs
 // Zak’s Hue 10.0.0.16 - vm5UwMtfQFno6IBQAOfZd5rlbO14wlcPn-7RfJ4A
 
-//Routes
-app.use('/lights/action/loop', index);
-
+/**
+ * ----------------------
+ * AUTHENTICATION ROUTES
+ * ----------------------
+ */
 //Signup Authentication Routes
 app.get('/signup/failure', (req, res) => { res.json({success: false, msg: 'Invalid Credentials Supplied'})});
 app.post('/signup', passport.authenticate('local-signup', { failureRedirect: '/signup/failure'}), (req, res) => {
@@ -56,11 +51,28 @@ app.post('/login', passport.authenticate('local-login', { failureRedirect: '/log
     res.json({success: true, user: req.user});
 });
 
+
+/**
+ * -----------------------
+ * API WIFI SCANNER ROUTES
+ * -----------------------
+ */
+app.get('/api/v1/scan', (req, res) => {
+    res.json({devices: []});
+});
+
+/**
+ * -------------------------
+ * API ROUTES FOR THE LIGHTS
+ * -------------------------
+ */
 app.get('/', (req, res) => {
     hue.getAll((data) => {
         res.json(data);
     });
 });
+
+app.use('/lights/action/loop', index);
 
 app.get('/lights', (req, res) => {
     hue.getLights((data) => {
