@@ -82,6 +82,7 @@ app.get('/api/v1/scan', (req, res) => {
 
         res.json({devices: data});
     });
+
 });
 
 //Generates a new Hue API Key
@@ -96,9 +97,25 @@ app.post('/api/v1/key/generate', (req, res) => {
 app.post('/api/v1/key/update', (req, res) => {
     let data = req.body.data; //User object {ip, mac, key, primary}
 
-    console.log(data);
+    //Find user in the DB
+    User.findOne({username: data.username}, (err, user) => {
+       if(!err) {
+           //Update user creds
+           user.key = data.key;
+           user.ip = data.ip;
+           user.setupRequired = false;
+       }
+       //Persist User creds
+       user.save(function (err) {
+            if(err) {
+                console.log(err);
+               res.json({success: false, msg: 'Failed to Save User to the database'})
+            }
+           res.json({success: true, user});
 
-    res.json({success: true});
+       });
+    });
+
 });
 
 /**

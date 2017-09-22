@@ -25,7 +25,7 @@ export default class Setup extends Component {
             finished: false,
             stepIndex: 0,
             devices: [], //All devices found from the network scan
-            bridge: '10.0.0.1', //The user selected philips hue bridge
+            bridge: {username: 'cbartram', key: 'foo', ip:'10.0.0.20', primary: true}, //The user selected philips hue bridge
             errorMessage: '',
             successfulPersist: false, //Whether to display circular progress or success message
         };
@@ -65,6 +65,9 @@ export default class Setup extends Component {
         this.setState({devices, bridge: devices[index]});
     };
 
+    /**
+     * Handles Pinging the Hue API for a new api key
+     */
     handleLink = () => {
         //Get API Key from Philips Hue
         fetch('api/v1/key/generate', {
@@ -93,21 +96,29 @@ export default class Setup extends Component {
     };
 
 
+    /**
+     * Handles persisting queried information to DB
+     */
     persist = () => {
-        fetch('api/v1/key/update', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-               data: this.state.bridge
-            })
-        }).then(data => data.json()).then(res => {
-            if(res.success) {
-                //this.setState({successfulPersist: true});
-            }
-        });
+        if(!this.state.successfulPersist) {
+            fetch('api/v1/key/update', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    data: this.state.bridge
+                })
+            }).then(data => data.json()).then(res => {
+                if (res.success) {
+                    //Remove current user from sessionStorage and set the new user (with updated key & ip)
+                    sessionStorage.removeItem('user');
+                    sessionStorage.setItem('user', JSON.stringify(res.user));
+                    this.setState({successfulPersist: true});
+                }
+            });
+        }
     };
 
     getStepContent(stepIndex) {
@@ -149,11 +160,11 @@ export default class Setup extends Component {
                             <h3>Updating your Account, Hang tight!</h3>
                         </div>
                         <div className="row">
-                            <div className="col-md-3 col-md-offset-5">
+                            <div className="col-md-9 col-md-offset-2">
                                 {
                                     this.state.successfulPersist === false ?
                                         <CircularProgress size={60} thickness={7} /> :
-                                        <p style={{color: 'green'}}><strong>Your information has been saved successfully!</strong> <FontIcon className="fa fa-check" style={{color:'rgb(0,202,114)',fontSize:20}} /></p>
+                                        <p style={{color: 'rgb(0, 202, 114)'}}><strong>Your information has been saved successfully!</strong> <FontIcon className="fa fa-check" style={{color:'rgb(0,202,114)',fontSize:20}} /></p>
                                 }
                             </div>
                         </div>
@@ -167,7 +178,6 @@ export default class Setup extends Component {
     }
 
     render() {
-
         const {finished, stepIndex} = this.state;
         const contentStyle = {margin: '0 16px'};
 

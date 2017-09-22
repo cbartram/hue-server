@@ -15,7 +15,7 @@ const user = JSON.parse(sessionStorage.getItem('user'));
  * Dynamically Updates the route to /login if the user is not
  * currently authenticated
  */
-function isLoggedIn() { return !(user === null || typeof user === 'undefined'); }
+function isLoggedIn() { return !(user === null || typeof user === 'undefined') && user.setupRequired === true; }
 
 ReactDOM.render(
    <MuiThemeProvider>
