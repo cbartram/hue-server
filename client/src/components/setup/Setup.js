@@ -9,6 +9,10 @@ import {
 } from 'material-ui/Stepper';
 import RaisedButton from 'material-ui/RaisedButton';
 import CircularProgress from 'material-ui/CircularProgress';
+import AppBar from 'material-ui/AppBar';
+import {Card, CardActions, CardHeader, CardText} from 'material-ui/Card';
+import FontIcon from 'material-ui/FontIcon';
+import {Redirect} from 'react-router-dom';
 import _ from 'lodash';
 
 
@@ -21,7 +25,7 @@ export default class Setup extends Component {
             finished: false,
             stepIndex: 0,
             devices: [], //All devices found from the network scan
-            bridge: null, //The user selected philips hue bridge
+            bridge: '10.0.0.1', //The user selected philips hue bridge
             errorMessage: '',
             successfulPersist: false, //Whether to display circular progress or success message
         };
@@ -43,7 +47,7 @@ export default class Setup extends Component {
         const {stepIndex} = this.state;
         this.setState({
             stepIndex: stepIndex + 1,
-            finished: stepIndex >= 2,
+            finished: stepIndex >= 3,
         });
     };
 
@@ -101,7 +105,7 @@ export default class Setup extends Component {
             })
         }).then(data => data.json()).then(res => {
             if(res.success) {
-                this.setState({successfulPersist: true});
+                //this.setState({successfulPersist: true});
             }
         });
     };
@@ -111,9 +115,9 @@ export default class Setup extends Component {
             case 0:
                 return (
                     <div>
-                        <p>We Found {this.state.devices.length} Philips Hue Bridge(s)</p>
+                        <h4>We Found <span style={{color:'rgb(0, 212, 114'}}>{this.state.devices.length}</span> Philips Hue Bridge(s)</h4>
                         <p>Check on the bottom of your Philips Hue bridge next to the HomeKit code for six alphanumeric
-                        characters which match the characters listed below. Then click the button with your matching
+                        characters which match the characters listed below. Then click the button below with your matching
                         alphanumeric characters to confirm your bridge with this App!</p>
                         <div className="row">
                             {
@@ -131,23 +135,32 @@ export default class Setup extends Component {
             case 1:
                 return (
                     <div>
-                        <p>Press the Link button on the top of your Hue Bridge then within 30 seconds press the Link button below </p>
+                        <p>Press the Link button on the top of your Hue Bridge then within 30 seconds press the Link button below to establish a connection
+                        between your Hue Bridge and this Application</p>
                         <p style={{color:'red'}}><strong>{this.state.errorMessage}</strong></p>
                         <RaisedButton primary={true} label="Link" onClick={() => {this.handleLink()}}/>
                     </div>
                 );
             case 2:
+                this.persist();
                 return (
-                    <div>
-                        <h3>Updating your Account, Hang tight!</h3>
-
-                        {
-                            this.state.successfulPersist === false ?
-                            <CircularProgress size={60} thickness={7} /> :
-                            <p style={{color: 'green'}}><strong>Your information has been saved successfully!</strong></p>
-                        }
+                    <div className="row">
+                        <div className="col-md-10 col-md-offset-2">
+                            <h3>Updating your Account, Hang tight!</h3>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-3 col-md-offset-5">
+                                {
+                                    this.state.successfulPersist === false ?
+                                        <CircularProgress size={60} thickness={7} /> :
+                                        <p style={{color: 'green'}}><strong>Your information has been saved successfully!</strong> <FontIcon className="fa fa-check" style={{color:'rgb(0,202,114)',fontSize:20}} /></p>
+                                }
+                            </div>
+                        </div>
                     </div>
                 );
+            case 3:
+                return <h3>Your Hue has been setup successfully! <FontIcon className="fa fa-check" style={{color:'rgb(0,202,114)',fontSize:25}} /></h3>;
             default:
                 return null
         }
@@ -160,40 +173,48 @@ export default class Setup extends Component {
 
         return(
             <div>
+                <AppBar/>
                 <div className="container">
                     <div className="row">
-                        <div className="col-md-8 col-md-offset-2">
-                            <Stepper activeStep={stepIndex}>
-                                <Step>
-                                    <StepLabel>Select your Hue Bridge</StepLabel>
-                                </Step>
-                                <Step>
-                                    <StepLabel>Verify Physical Access</StepLabel>
-                                </Step>
-                                <Step>
-                                    <StepLabel>Link to your Account</StepLabel>
-                                </Step>
-                            </Stepper>
-                            <div style={contentStyle}>
-                                {finished ? (
-                                    <p>
-                                        <a href="#" onClick={(event) => {event.preventDefault(); this.setState({stepIndex: 0, finished: false});}}>
-                                            Click here
-                                        </a> to reset the example.
-                                    </p>
-                                ) : (
-                                    <div>
-                                        <p>{this.getStepContent(stepIndex)}</p>
-                                        <div style={{marginTop: 12}}>
-                                            <RaisedButton
-                                                label={stepIndex === 2 ? 'Finish' : 'Next'}
-                                                primary={true}
-                                                onClick={this.handleNext}
-                                            />
-                                        </div>
+                        <div className="col-md-10 col-md-offset-2">
+                            <Card style={{marginTop:20}}>
+                                <CardHeader
+                                    title="Setup your Hue Bridge"
+                                    subtitle="Link Account"
+                                />
+                                <CardText>
+                                    <Stepper activeStep={stepIndex}>
+                                        <Step>
+                                            <StepLabel>Select your Hue Bridge</StepLabel>
+                                        </Step>
+                                        <Step>
+                                            <StepLabel>Verify Physical Access</StepLabel>
+                                        </Step>
+                                        <Step>
+                                            <StepLabel>Link to your Account</StepLabel>
+                                        </Step>
+                                        <Step>
+                                            <StepLabel>Done</StepLabel>
+                                        </Step>
+                                    </Stepper>
+                                    <div style={contentStyle}>
+                                        {finished ? (
+                                            <Redirect to="/" />
+                                        ) : (
+                                            <div>
+                                                <p>{this.getStepContent(stepIndex)}</p>
+                                                <div style={{marginTop: 12}}>
+                                                    <RaisedButton
+                                                        label={stepIndex === 3 ? 'Finish' : 'Next'}
+                                                        primary={true}
+                                                        onClick={this.handleNext}
+                                                    />
+                                                </div>
+                                            </div>
+                                        )}
                                     </div>
-                                )}
-                            </div>
+                                </CardText>
+                            </Card>
                         </div>
                     </div>
                 </div>

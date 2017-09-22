@@ -96,8 +96,7 @@ app.post('/api/v1/key/generate', (req, res) => {
 app.post('/api/v1/key/update', (req, res) => {
     let data = req.body.data; //User object {ip, mac, key, primary}
 
-
-
+    console.log(data);
 
     res.json({success: true});
 });
