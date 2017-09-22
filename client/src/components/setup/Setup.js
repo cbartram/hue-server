@@ -8,6 +8,7 @@ import {
     StepLabel,
 } from 'material-ui/Stepper';
 import RaisedButton from 'material-ui/RaisedButton';
+import CircularProgress from 'material-ui/CircularProgress';
 import _ from 'lodash';
 
 
@@ -21,6 +22,8 @@ export default class Setup extends Component {
             stepIndex: 0,
             devices: [], //All devices found from the network scan
             bridge: null, //The user selected philips hue bridge
+            errorMessage: '',
+            successfulPersist: false, //Whether to display circular progress or success message
         };
     }
 
@@ -29,7 +32,6 @@ export default class Setup extends Component {
         fetch('/api/v1/scan')
             .then((response) => response.json())
             .then((responseJson) => {
-            console.log(responseJson);
                 this.setState({devices: responseJson.devices});
             })
             .catch((error) => {
@@ -71,7 +73,36 @@ export default class Setup extends Component {
                 devicetype: this.state.bridge.ip
             })
         }).then(data => data.json()).then(key => {
-           console.log(key);
+            if(key[0].error) {
+                this.setState({errorMessage: 'Oh no, we couldnt authenticate you! Ensure that you have selected the right Hue bridge in step one and have pressed the link button on the top of the bridge.'})
+            } else {
+                //It was successful WOO!
+
+                let user = JSON.parse(sessionStorage.getItem('user'));
+
+                let {bridge} = this.state;
+                Object.assign(bridge, {key: key[0].success.username}, {username: user.username});
+                console.log(bridge);
+                this.setState({bridge});
+            }
+        });
+    };
+
+
+    persist = () => {
+        fetch('api/v1/key/update', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+               data: this.state.bridge
+            })
+        }).then(data => data.json()).then(res => {
+            if(res.success) {
+                this.setState({successfulPersist: true});
+            }
         });
     };
 
@@ -101,11 +132,22 @@ export default class Setup extends Component {
                 return (
                     <div>
                         <p>Press the Link button on the top of your Hue Bridge then within 30 seconds press the Link button below </p>
+                        <p style={{color:'red'}}><strong>{this.state.errorMessage}</strong></p>
                         <RaisedButton primary={true} label="Link" onClick={() => {this.handleLink()}}/>
                     </div>
                 );
             case 2:
-                return 'Updating your account!';
+                return (
+                    <div>
+                        <h3>Updating your Account, Hang tight!</h3>
+
+                        {
+                            this.state.successfulPersist === false ?
+                            <CircularProgress size={60} thickness={7} /> :
+                            <p style={{color: 'green'}}><strong>Your information has been saved successfully!</strong></p>
+                        }
+                    </div>
+                );
             default:
                 return null
         }

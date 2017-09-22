@@ -10,6 +10,7 @@ const passport = require('passport');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const _ = require('lodash');
+const User = require('./models/User');
 require('./auth/passport')(passport);
 let app = express();
 const index = require('./routes/index');
@@ -90,6 +91,15 @@ app.post('/api/v1/key/generate', (req, res) => {
     requestify.post(`http://${deviceType}/api/`, { devicetype: deviceType }).then((response) => {
         res.json(response.getBody());
     });
+});
+
+app.post('/api/v1/key/update', (req, res) => {
+    let data = req.body.data; //User object {ip, mac, key, primary}
+
+
+
+
+    res.json({success: true});
 });
 
 /**
