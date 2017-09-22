@@ -26,7 +26,7 @@ export default class SetupPrompt extends Component {
                         <div className="background">
                             <div className="row">
                                 <div className="col-md-6 col-md-offset-3">
-                                    <h3 className="header-text">Welcome, Click the button below to setup your lights.</h3>
+                                    <h3 className="header-text">Lets get you setup!</h3>
                                 </div>
                             </div>
                             <div className="row">
