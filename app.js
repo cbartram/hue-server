@@ -1,8 +1,10 @@
 const express = require('express');
 const path = require('path');
+const exec = require('exec');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
+const requestify = require('requestify');
 const Hue = require('./Hue');
 const passport = require('passport');
 const mongoose = require('mongoose');
@@ -28,7 +30,7 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     next();
 });
-
+//sudo nmap -n -sP 10.0.3.0/24 | awk '/Nmap scan report/{printf $5;printf " ";getline;getline;print $3;}'
 const hue = new Hue('kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs', '10.0.0.129');
 // Marshall’s Hue: 10.0.0.20 - VaEYVOExonOd0QkHSM3TZp0hBoAtpe-sxEbG43on
 // My Hue: 10.0.0.129 - kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs
@@ -58,7 +60,36 @@ app.post('/login', passport.authenticate('local-login', { failureRedirect: '/log
  * -----------------------
  */
 app.get('/api/v1/scan', (req, res) => {
-    res.json({devices: []});
+    let data = [];
+
+    exec(`echo preprocesor | sudo -S nmap -n -sP 10.0.0.1/24 | awk '/Nmap scan report/{printf $5;printf " ";getline;getline;print $3;}'`, (err, out) => {
+        out = out.replace(/\n/g, " ").split(" ");
+
+        out.forEach((o, v) => {
+            if(v % 2 === 0 &&  typeof out[v + 1] !== 'undefined') {
+                data[v] = { ip: out[v], mac: out[v + 1], primary: false };
+            }
+        });
+
+        //Filter out empty data
+        data = data.filter(value => Object.keys(value).length !== 0);
+
+        //Filter out un-necessary mac address's
+        data = data.filter((o) => {
+           return o.mac.includes('00:17:88');
+        });
+
+        res.json({devices: data});
+    });
+});
+
+//Generates a new Hue API Key
+app.post('/api/v1/key/generate', (req, res) => {
+    const deviceType = req.body.devicetype;//DeviceType is the ip from the client
+
+    requestify.post(`http://${deviceType}/api/`, { devicetype: deviceType }).then((response) => {
+        res.json(response.getBody());
+    });
 });
 
 /**

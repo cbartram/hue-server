@@ -8,8 +8,7 @@ import {
     StepLabel,
 } from 'material-ui/Stepper';
 import RaisedButton from 'material-ui/RaisedButton';
-import FlatButton from 'material-ui/FlatButton';
-import {Redirect} from 'react-router-dom';
+import _ from 'lodash';
 
 
 
@@ -20,14 +19,22 @@ export default class Setup extends Component {
         this.state = {
             finished: false,
             stepIndex: 0,
-            user: null,
-            redirect: false
+            devices: [], //All devices found from the network scan
+            bridge: null, //The user selected philips hue bridge
         };
     }
-    componentDidMount = () => {
-        if(typeof JSON.parse(sessionStorage.getItem('user')) === 'undefined') {
-            this.setState({redirect: true, user: JSON.parse(sessionStorage.getItem('user'))});
-        }
+
+    componentWillMount = () => {
+        //Make a request for the server to scan the wifi
+        fetch('/api/v1/scan')
+            .then((response) => response.json())
+            .then((responseJson) => {
+            console.log(responseJson);
+                this.setState({devices: responseJson.devices});
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     };
 
     handleNext = () => {
@@ -38,11 +45,34 @@ export default class Setup extends Component {
         });
     };
 
-    handlePrev = () => {
-        const {stepIndex} = this.state;
-        if (stepIndex > 0) {
-            this.setState({stepIndex: stepIndex - 1});
-        }
+    handleBridgeSelection = (device) => {
+        let {devices} = this.state;
+
+        let index =  _.findIndex(devices, o => {
+            return o.ip === device.ip;
+        });
+
+        devices.forEach((d, v) => {
+            d.primary = v === index;
+        });
+
+        this.setState({devices, bridge: devices[index]});
+    };
+
+    handleLink = () => {
+        //Get API Key from Philips Hue
+        fetch('api/v1/key/generate', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                devicetype: this.state.bridge.ip
+            })
+        }).then(data => data.json()).then(key => {
+           console.log(key);
+        });
     };
 
     getStepContent(stepIndex) {
@@ -50,11 +80,30 @@ export default class Setup extends Component {
             case 0:
                 return (
                     <div>
-                        <RaisedButton label="food"/>
+                        <p>We Found {this.state.devices.length} Philips Hue Bridge(s)</p>
+                        <p>Check on the bottom of your Philips Hue bridge next to the HomeKit code for six alphanumeric
+                        characters which match the characters listed below. Then click the button with your matching
+                        alphanumeric characters to confirm your bridge with this App!</p>
+                        <div className="row">
+                            {
+                                this.state.devices.map(device => {
+                                    return (
+                                        <div key={device.ip} className="col-md-3">
+                                            <RaisedButton primary={device.primary} label={device.mac.substring(8, device.mac.length)} onClick={() => {this.handleBridgeSelection(device)}} />
+                                        </div>
+                                    )
+                                })
+                            }
+                        </div>
                     </div>
                 );
             case 1:
-                return 'Press the Link button on the top of your hue bridge';
+                return (
+                    <div>
+                        <p>Press the Link button on the top of your Hue Bridge then within 30 seconds press the Link button below </p>
+                        <RaisedButton primary={true} label="Link" onClick={() => {this.handleLink()}}/>
+                    </div>
+                );
             case 2:
                 return 'Updating your account!';
             default:
@@ -94,12 +143,6 @@ export default class Setup extends Component {
                                     <div>
                                         <p>{this.getStepContent(stepIndex)}</p>
                                         <div style={{marginTop: 12}}>
-                                            <FlatButton
-                                                label="Back"
-                                                disabled={stepIndex === 0}
-                                                onClick={this.handlePrev}
-                                                style={{marginRight: 12}}
-                                            />
                                             <RaisedButton
                                                 label={stepIndex === 2 ? 'Finish' : 'Next'}
                                                 primary={true}
@@ -112,7 +155,6 @@ export default class Setup extends Component {
                         </div>
                     </div>
                 </div>
-                { this.state.redirect === false ? null : <Redirect to="/" /> }
             </div>
         )
     }

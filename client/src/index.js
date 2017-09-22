@@ -26,7 +26,7 @@ ReactDOM.render(
                 <Route path="/login" component={Login} />
 
                 {/* Authentication Route Middleware */}
-                <Route exact path="/setup" render={() => (!isLoggedIn() ? (<Redirect to="/login"/>) : (<Setup/>))}/>
+                <Route exact path="/setup" render={() =>(!isLoggedIn() ? (<Redirect to="/login"/>) : (<Setup/>))}/>
             </div>
         </BrowserRouter>
    </MuiThemeProvider>, document.getElementById('root'));
