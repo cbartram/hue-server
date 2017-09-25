@@ -56,17 +56,11 @@ export default class Login extends Component {
         })
     };
 
-    handleBackClick = () => {
-      this.setState({redirect: true});
-    };
-
-
     render() {
         return (
             <div className="container-fluid">
                 <AppBar
                     title="Login"
-                    iconClassNameLeft={<IconButton onClick={this.handleBackClick} />}
                 />
                 <div className="row">
                     <div className="col-md-4 col-md-offset-5">

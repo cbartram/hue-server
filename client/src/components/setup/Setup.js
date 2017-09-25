@@ -25,8 +25,9 @@ export default class Setup extends Component {
             finished: false,
             stepIndex: 0,
             devices: [], //All devices found from the network scan
-            bridge: {username: 'cbartram', key: 'foo', ip:'10.0.0.20', primary: true}, //The user selected philips hue bridge
+            bridge: '10.0.0.1', //The user selected philips hue bridge
             errorMessage: '',
+            linkSuccess: '', //Display link success text?
             successfulPersist: false, //Whether to display circular progress or success message
         };
     }
@@ -89,8 +90,7 @@ export default class Setup extends Component {
 
                 let {bridge} = this.state;
                 Object.assign(bridge, {key: key[0].success.username}, {username: user.username});
-                console.log(bridge);
-                this.setState({bridge});
+                this.setState({bridge, linkSuccess: 'Your Hue bridge was successfully linked with this App, press next to continue!', errorMessage: ''});
             }
         });
     };
@@ -149,6 +149,7 @@ export default class Setup extends Component {
                         <p>Press the Link button on the top of your Hue Bridge then within 30 seconds press the Link button below to establish a connection
                         between your Hue Bridge and this Application</p>
                         <p style={{color:'red'}}><strong>{this.state.errorMessage}</strong></p>
+                        <p style={{color: 'rgb(0, 202, 114)'}}><strong>{this.state.linkSuccess}</strong></p>
                         <RaisedButton primary={true} label="Link" onClick={() => {this.handleLink()}}/>
                     </div>
                 );

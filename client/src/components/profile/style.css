@@ -1,0 +1,18 @@
+.highlight {
+    margin: 10px 0;
+}
+.highlight {
+    margin-bottom: 3px;
+    padding: 5px 10px;
+    position: relative;
+    background: #f4f8fb;
+    border: 1px solid #e1ecf4;
+}
+
+.padding-top {
+    padding-top:15px;
+}
+
+.card-padding {
+    margin-top:20px;
+}

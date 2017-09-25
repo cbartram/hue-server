@@ -1,7 +1,7 @@
 /**
  * Created by christianbartram on 9/13/17.
  */
-let BASE_URL = "http://hue-server.ddns.net:3000";
+let BASE_URL = "http:/localhost:3000";
 
 
 module.exports = {
@@ -15,7 +15,7 @@ module.exports = {
   },
 
   on() {
-      fetch(`${BASE_URL}/on`) //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+      fetch(`${BASE_URL}/on`)
           .then((response) => response.json())
           .then((responseJson) => {
               //Do something with response
@@ -25,7 +25,7 @@ module.exports = {
   },
 
   off() {
-      fetch(`${BASE_URL}/off`) //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+      fetch(`${BASE_URL}/off`)
           .then((response) => response.json())
           .then((responseJson) => {
               //Do something with response
@@ -35,7 +35,7 @@ module.exports = {
   },
 
   setColor(color) {
-      fetch(`${BASE_URL}/color/${color}`) //TODO change from localhost:3000/lights to http://hue-server.ddns.net:3000/lights
+      fetch(`${BASE_URL}/color/${color}`)
           .then((response) => response.json())
           .then((responseJson) => {
               //Do something with response
