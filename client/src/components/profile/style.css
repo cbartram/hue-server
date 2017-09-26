@@ -16,3 +16,7 @@
 .card-padding {
     margin-top:20px;
 }
+
+.success {
+    color: rgb(0, 202, 114);
+}

@@ -7,7 +7,7 @@ import {Card, CardHeader, CardText } from 'material-ui/Card';
 import TextField from 'material-ui/TextField';
 import './style.css';
 import RaisedButton from 'material-ui/RaisedButton';
-import {withRouter} from 'react-router-dom';
+import {withRouter, Link} from 'react-router-dom';
 
 export default class Profile extends Component {
     constructor() {
@@ -19,12 +19,9 @@ export default class Profile extends Component {
             currPass: '',
             newPass: '',
             confirm: '',
+            successMessage: '',
         }
     }
-
-    componentDidMount = () => {
-
-    };
 
     /**
      * Handles the current password field being changed
@@ -52,9 +49,16 @@ export default class Profile extends Component {
     handleSubmit = () => {
       //Data is stored in the state;
       let { currPass, newPass, confirm } = this.state;
+      let valid = false;
+
+      if(currPass.length > 1) {
+          valid = true;
+      } else {
+          this.setState({errorMessage: {newPass: '', currPass: 'Your passwords must not be blank', confirm: ''}});
+      }
 
       //Ensure newpass and confirm match
-       if(newPass === confirm) {
+       if(newPass === confirm && valid) {
            //Post data to server
            fetch('/password/update', {
                method: 'POST',
@@ -73,8 +77,11 @@ export default class Profile extends Component {
                    this.setState({errorMessage: {newPass: '', currPass: json.msg, confirm: ''}});
                } else {
                    sessionStorage.setItem('user', JSON.stringify(json.user));
+
+                   //Disable any Error Messages and
                    //Alert the user their password has been updated
-                   console.log('password update success!');
+                   this.setState({errorMessage: {newPass: '', currPass: '', confirm: ''}, successMessage: 'Your password has been updated successfully!'});
+
                }
            });
 
@@ -129,10 +136,17 @@ export default class Profile extends Component {
                                         </div>
                                     </div>
                                 </div>
+                                <div className="row padding-top">
+                                    <div className="col-md-2 col-md-offset-3">
+                                        <Link to="/">
+                                            <RaisedButton label="Dashboard" />
+                                        </Link>
+                                    </div>
+                                </div>
                             </CardText>
                         </Card>
                     </div>
-                    <div className="col-md-3 col-md-offset-1 padding-top">
+                    <div className="col-md-3 padding-top">
                         <Card>
                             <CardHeader
                                 title="Actions"
@@ -141,12 +155,16 @@ export default class Profile extends Component {
                             <CardText>
                                 <div className="row">
                                     <div className="col-md-3">
+                                        <h4>Logout</h4>
                                        <Button/>
                                     </div>
                                 </div>
                             </CardText>
                             <CardText>
                                 <h4>Change your Password</h4>
+                                <div className="success">
+                                    {this.state.successMessage}
+                                </div>
                                 <TextField
                                     hintText="Current Password"
                                     type="password"
