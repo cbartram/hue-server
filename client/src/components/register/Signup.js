@@ -45,7 +45,6 @@ export default class Signup extends Component {
             })
         }).then(res => res.json()).then((json) => {
             if(json.success) {
-                //Log them in as well
                 sessionStorage.setItem('user', JSON.stringify(json.user));
                 this.setState({redirect: true})
             }

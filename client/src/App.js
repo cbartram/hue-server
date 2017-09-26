@@ -5,13 +5,9 @@ import Dashboard from './components/dashboard/Dashboard';
 
 
 
-class App extends Component {
+export default class App extends Component {
   constructor() {
       super();
-
-      this.state = {
-
-      }
   }
 
   render() {
@@ -22,5 +18,3 @@ class App extends Component {
     );
   }
 }
-
-export default App;

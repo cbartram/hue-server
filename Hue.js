@@ -12,7 +12,9 @@ let key; //API Key
 let ip; //Hue bridge IPv4 Address
 
 class Hue {
-    constructor(key, ip) {
+    constructor() {}
+
+    init(key, ip) {
         this.key = key;
         this.ip = ip;
     }

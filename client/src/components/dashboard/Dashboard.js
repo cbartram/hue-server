@@ -36,8 +36,6 @@ class App extends Component {
         //TODO Set base URL to Production environment
         hueAPI.setURL('http://localhost:3000');
 
-        //Fetch Lights
-        this.getLights();
 
         //Check user login status & if they need to go through the setup process
         sessionStorage.getItem('user') !== null && this.setState({isLoggedIn: true, user: JSON.parse(sessionStorage.getItem('user'))});
@@ -47,6 +45,10 @@ class App extends Component {
 
             if(user.setupRequired) {
                 this.setState({setupRequired: true});
+            } else {
+                //User is logged in and does not require setup
+                //we can be sure the HueAPI on the server has valid values
+                this.getLights();
             }
         }
 

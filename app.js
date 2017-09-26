@@ -14,10 +14,14 @@ const User = require('./models/User');
 require('./auth/passport')(passport);
 let app = express();
 const index = require('./routes/index');
+const hue = new Hue(); //Hue API
 
-//Connect to DB & Initialize Hue API
-mongoose.connect(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`);
-const hue = new Hue('kmJjw06quUGDF5KwxvqHOPPRPjjR5MBxFvYNhGBs', '10.0.0.129');
+//Connect to Database
+try {
+    mongoose.connect(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`);
+} catch(err) {
+    console.log('Failed to Connect to the Database....Check Wifi Connection');
+}
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -52,7 +56,39 @@ app.post('/signup', passport.authenticate('local-signup', { failureRedirect: '/s
 //Login Authentication Routes
 app.get('/login/failure', (req, res) => { res.json({success: false, msg: 'Invalid Credentials Supplied'})});
 app.post('/login', passport.authenticate('local-login', { failureRedirect: '/login/failure' }), (req, res) => {
+    //Ensure the user is setup so null values are not passed into hue
+    if(!req.user.setupRequired) {
+        hue.init(req.user.key, req.user.ip);
+    }
+
     res.json({success: true, user: req.user});
+});
+
+
+app.post('/password/update', (req, res) => {
+   const currentPassword = req.body.curr;
+   const newPassword = req.body.newPass;
+
+   User.findOne({username: req.body.username.username}, (err, user) => {
+       //They entered their current password in correctly
+       if(user.validPassword(currentPassword)) {
+           user.password = user.hash(newPassword);
+
+           //Persist User creds
+           user.save((err) => {
+               if(err) {
+                   console.log(err);
+                   res.json({success: false, msg: 'Failed to Save User to the database'})
+               }
+               res.json({success: true, user});
+
+           });
+
+       } else {
+           res.json({success: false, msg: 'Your current password does not match our records.'})
+       }
+   });
+
 });
 
 

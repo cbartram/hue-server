@@ -10,13 +10,11 @@ import registerServiceWorker from './registerServiceWorker';
 import { BrowserRouter, Route, Redirect } from 'react-router-dom';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
-const user = JSON.parse(sessionStorage.getItem('user'));
-
 /**
  * Dynamically Updates the route to /login if the user is not
  * currently authenticated
  */
-function isLoggedIn() { return !(user === null || typeof user === 'undefined') }
+function isLoggedIn() {const user = JSON.parse(sessionStorage.getItem('user')); return !(user === null || typeof user === 'undefined') }
 
 ReactDOM.render(
    <MuiThemeProvider>
@@ -28,7 +26,7 @@ ReactDOM.render(
 
                 {/* Authentication Route Middleware */}
                 <Route exact path="/setup" render={() =>(!isLoggedIn() ? (<Redirect to="/login"/>) : (<Setup/>))}/>
-                <Route exact path="/profile" render={() => (!isLoggedIn() ? (<Redirect to="/login"/>) : (<Profile/>))} />
+                <Route exact path="/profile" render={() => !isLoggedIn() ? (<Redirect to="/login"/>) : (<Profile/>)}/>
             </div>
         </BrowserRouter>
    </MuiThemeProvider>, document.getElementById('root'));
