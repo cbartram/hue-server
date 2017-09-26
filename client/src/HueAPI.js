@@ -14,6 +14,16 @@ module.exports = {
       return BASE_URL;
   },
 
+  getLights(callback) {
+      fetch(`${BASE_URL}/lights`)
+          .then((response) => response.json())
+          .then((responseJson) => {
+              callback(responseJson);
+          }).catch((error) => {
+          console.error(error);
+      });
+  },
+
   on() {
       fetch(`${BASE_URL}/on`)
           .then((response) => response.json())

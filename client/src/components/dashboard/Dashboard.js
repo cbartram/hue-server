@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../css/App.css';
 import _ from 'lodash';
 import { CirclePicker } from 'react-color';
+import {Link} from 'react-router-dom';
 
 //Material UI
 import RaisedButton from 'material-ui/RaisedButton';
@@ -46,7 +47,6 @@ class App extends Component {
 
             if(user.setupRequired) {
                 this.setState({setupRequired: true});
-                //TODO change setup status in DB to false
             }
         }
 
@@ -59,31 +59,27 @@ class App extends Component {
     getLights = () => {
         let result = this.state.lights;
 
-        fetch('/lights')
-            .then((response) => response.json())
-            .then((responseJson) => {
-                for (let key in responseJson) {
-                    if (responseJson.hasOwnProperty(key)) {
+        hueAPI.getLights((responseJson) => {
+            for (let key in responseJson) {
+                if (responseJson.hasOwnProperty(key)) {
 
-                        let obj = {
-                            key: key,
-                            name: responseJson[key].name,
-                            id: responseJson[key].uniqueid,
-                            state: {
-                                on: responseJson[key].state.on,
-                                selected: true,
-                                reachable: responseJson[key].state.reachable,
-                                hue: responseJson[key].state.hue,
-                                sat: responseJson[key].state.sat,
-                                bri: responseJson[key].state.bri
-                            }
-                        };
+                    let obj = {
+                        key: key,
+                        name: responseJson[key].name,
+                        id: responseJson[key].uniqueid,
+                        state: {
+                            on: responseJson[key].state.on,
+                            selected: true,
+                            reachable: responseJson[key].state.reachable,
+                            hue: responseJson[key].state.hue,
+                            sat: responseJson[key].state.sat,
+                            bri: responseJson[key].state.bri
+                        }
+                    };
 
-                        result.push(obj);
-                    }
+                    result.push(obj);
                 }
-            }).catch((error) => {
-            console.error(error);
+            }
         });
 
         this.setState({lights: result });
@@ -156,6 +152,7 @@ class App extends Component {
         const dashboard = () => {
             return (
                 <div>
+                   <div className="row">
                     {/* Houses the List of Lights */}
                     <div className="col-md-5 col-md-offset-1 light-list">
                         <LightList handleCheck={(e, checked, id) => this.handleCheck(e, checked, id) } lights={this.state.lights}/>
@@ -178,9 +175,24 @@ class App extends Component {
                             </CardText>
                         </Card>
                     </div>
+                   </div>
                     {/* Card for Brightness */}
                     <div className="row">
-                        <div className="col-md-5 col-md-offset-6 light-list">
+                        <div className="col-md-5 col-md-offset-1">
+                            <Card>
+                                <CardHeader
+                                    style={{float:'left'}}
+                                    title="Profile"
+                                />
+                                <CardText>
+                                    <Link to="/profile">
+                                        <RaisedButton label="Profile" primary={true} />
+                                    </Link>
+                                </CardText>
+                            </Card>
+                        </div>
+
+                        <div className="col-md-5 light-list">
                             <Card>
                                 <CardHeader
                                     style={{float:'left'}}
@@ -213,8 +225,9 @@ class App extends Component {
                                 </p>
                             </div>
                         </div>
-                        {!this.state.isLoggedIn ? <LoginPrompt/> : dashboard()}
-                        {this.state.setupRequired ? <SetupPrompt/> : null}
+                        {!this.state.isLoggedIn && <LoginPrompt/> }
+                        {(this.state.isLoggedIn && this.state.setupRequired) && <SetupPrompt/>}
+                        {(this.state.isLoggedIn && !this.state.setupRequired) && dashboard()}
                     </div>
                 </div>
         );
