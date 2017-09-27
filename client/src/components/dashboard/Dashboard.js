@@ -48,20 +48,22 @@ class App extends Component {
             } else {
                 //User is logged in and does not require setup
                 //we can be sure the HueAPI on the server has valid values
-                this.getLights();
+                this.getLights(user);
             }
         }
 
     };
 
     flash = () => {
-
+        hueAPI.flash(this.state.lights, (res) => {
+           console.log(res);
+        });
     };
 
-    getLights = () => {
+    getLights = (user) => {
         let result = this.state.lights;
 
-        hueAPI.getLights((responseJson) => {
+        hueAPI.getLights(user, (responseJson) => {
             for (let key in responseJson) {
                 if (responseJson.hasOwnProperty(key)) {
 
@@ -82,9 +84,11 @@ class App extends Component {
                     result.push(obj);
                 }
             }
+            this.setState({lights: result }, () => {
+                console.log(this.state.lights);
+            });
         });
 
-        this.setState({lights: result });
 
     };
 

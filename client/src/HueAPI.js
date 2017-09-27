@@ -1,7 +1,7 @@
 /**
  * Created by christianbartram on 9/13/17.
  */
-let BASE_URL = "http:/localhost:3000";
+let BASE_URL = "http://localhost:3000";
 
 
 module.exports = {
@@ -14,9 +14,27 @@ module.exports = {
       return BASE_URL;
   },
 
-  getLights(callback) {
-      fetch(`${BASE_URL}/lights`)
+  getLights(user, callback) {
+      fetch(`${BASE_URL}/lights?key=${user.key}&ip=${user.ip}`)
           .then((response) => response.json())
+          .then((responseJson) => {
+              callback(responseJson);
+          }).catch((error) => {
+          console.error(error);
+      });
+  },
+
+  flash(lights, callback) {
+      fetch(`${BASE_URL}/lights/action/flash`, {
+          method: 'POST',
+          headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+              lights: lights,
+          })
+      }).then((response) => response.json())
           .then((responseJson) => {
               callback(responseJson);
           }).catch((error) => {

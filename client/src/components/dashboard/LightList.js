@@ -18,12 +18,7 @@ export default class LightList extends Component {
     render() {
         return (
             <Card>
-                <CardHeader
-                    title="Lights"
-                    subtitle="Current Lights"
-                    actAsExpander={true}
-                    showExpandableButton={true}
-                />
+                <CardHeader title="Lights" />
                 <CardText>
                     <Lights handleCheck={(e, checked, id) => this.props.handleCheck(e, checked, id)} lights={this.props.lights} />
                 </CardText>

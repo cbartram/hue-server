@@ -19,6 +19,14 @@ class Hue {
         this.ip = ip;
     }
 
+    getKey() {
+        return this.key;
+    }
+
+    getIp() {
+        return this.ip;
+    }
+
     /**
      * Fetches information about the Hue Bridge, Configuration, Groups, and lights.
      * @param callback Function

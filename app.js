@@ -169,6 +169,11 @@ app.get('/', (req, res) => {
 app.use('/lights/action/loop', index);
 
 app.get('/lights', (req, res) => {
+    //hue has not been initialized
+    if(typeof hue.getIp() === 'undefined' || typeof hue.getKey() === 'undefined') {
+        hue.init(req.param('key'), req.param('ip'));
+    }
+
     hue.getLights((data) => {
         if(data !== null && typeof data !== 'undefined') {
             res.json(data);
@@ -177,6 +182,7 @@ app.get('/lights', (req, res) => {
         }
     });
 });
+
 
 app.get('/on', (req, res) => {
    hue.allOn((data) => {
@@ -231,6 +237,14 @@ app.post('/lights/action/brightness/', (req, res) => {
     })
 });
 
+app.post('/lights/action/flash', (req, res) => {
+
+    req.body.lights.forEach(light => {
+       hue.alert(light.id, (res) => {console.log(res)});
+    });
+
+   res.json({success: true, lights: req.body.lights});
+});
 
 app.post('/lights/action/on', (req, res) => {
    const ids = req.body.ids;
