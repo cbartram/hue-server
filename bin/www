@@ -4,32 +4,32 @@
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('hue:server');
-var http = require('http');
+const app = require('../app');
+const debug = require('debug')('hue:server');
+const http = require('http');
+const chalk = require('chalk');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+const port = normalizePort(process.env.PORT || '3000');
+console.log(chalk.blue('\u2713 Setting Server Port to 3000...'));
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
 
-var server = http.createServer(app);
+console.log(chalk.blue('\u2713 Creating HTTP Server...'));
+const server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
 
 server.listen(port, 'localhost', (err) => {
-  if(err) {
-    onError(err);
-  }
-
+  if(err) onError(err);
   onListening();
 });
 /**
@@ -37,7 +37,8 @@ server.listen(port, 'localhost', (err) => {
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+    console.log(chalk.blue('\u2713 Normalizing Port...'));
+    let port = parseInt(val, 10);
 
   if (isNaN(port)) {
     // named pipe
@@ -83,8 +84,9 @@ function onError(error) {
 /**
  * Event listener for HTTP server "listening" event.
  */
-
 function onListening() {
-  var addr = server.address();
-  console.log(`Philips Hue Server Listening on ${addr.address}:${addr.port}`)
+  let addr = server.address();
+  console.log(chalk.blue('--------------------------------------------------'));
+  console.log(chalk.blue(`| Philips Hue Server Listening on ${addr.address}:${addr.port} |`));
+  console.log(chalk.blue('--------------------------------------------------'));
 }

@@ -14,18 +14,41 @@ let ip; //Hue bridge IPv4 Address
 class Hue {
     constructor() {}
 
+    /**
+     * Initializes the key & ip to specific values
+     * @param key String API Key
+     * @param ip String IPV4 Address
+     */
     init(key, ip) {
         this.key = key;
         this.ip = ip;
     }
 
+    /**
+     * Returns the Hue API Key
+     * @returns {*}
+     */
     getKey() {
         return this.key;
     }
 
+    /**
+     * Returns true if the API is initialized and false otherwise
+     * @returns {boolean}
+     */
+    isInit() {
+      return !(typeof this.key === 'undefined' || typeof this.ip === 'undefined');
+    }
+
+    /**
+     * Returns the Hue Bridge Ip address
+     * @returns {*}
+     */
     getIp() {
         return this.ip;
     }
+
+
 
     /**
      * Fetches information about the Hue Bridge, Configuration, Groups, and lights.

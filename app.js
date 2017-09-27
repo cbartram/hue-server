@@ -3,11 +3,13 @@ const path = require('path');
 const exec = require('exec');
 const favicon = require('serve-favicon');
 const logger = require('morgan');
+const chalk = require('chalk');
 const bodyParser = require('body-parser');
 const requestify = require('requestify');
 const Hue = require('./Hue');
 const passport = require('passport');
 const mongoose = require('mongoose');
+const Logger = require('mongodb').Logger;
 const session = require('express-session');
 const _ = require('lodash');
 const User = require('./models/User');
@@ -17,11 +19,11 @@ const index = require('./routes/index');
 const hue = new Hue(); //Hue API
 
 //Connect to Database
-try {
-    mongoose.connect(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`);
-} catch(err) {
-    console.log('Failed to Connect to the Database....Check Wifi Connection');
-}
+mongoose.connect(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`, (err) => {
+    if(err) console.log(chalk.hex('#e81a00')('Failed to Connect to the Database....Check Wifi Connection'));
+
+});
+
 
 app.use(logger('dev'));
 app.use(bodyParser.json());
@@ -30,6 +32,18 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(passport.initialize());
 app.use(passport.session());
+
+/**
+ * Function to ensure Hue is initialized
+ * before making calls to the API
+ * @param res Express response object
+ */
+const initCheck = (res) => {
+    if(!hue.isInit()) {
+        console.log(chalk.red('\u2715 Philips Hue API is not initialized.'));
+        res.json({success: false, msg: 'The Philips Hue API is not initialized make a POST request to /auth to initialize'});
+    }
+};
 
 //Allow CORS
 app.use((req, res, next) => {
@@ -43,9 +57,9 @@ app.use((req, res, next) => {
 // Zak’s Hue 10.0.0.16 - vm5UwMtfQFno6IBQAOfZd5rlbO14wlcPn-7RfJ4A
 
 /**
- * ----------------------
- * AUTHENTICATION ROUTES
- * ----------------------
+ * ------------------------------------
+ * AUTHENTICATION & USER RELATED ROUTES
+ * ------------------------------------
  */
 //Signup Authentication Routes
 app.get('/signup/failure', (req, res) => { res.json({success: false, msg: 'Invalid Credentials Supplied'})});
@@ -64,7 +78,9 @@ app.post('/login', passport.authenticate('local-login', { failureRedirect: '/log
     res.json({success: true, user: req.user});
 });
 
-
+/**
+ * Verifies and Updates a user's password
+ */
 app.post('/password/update', (req, res) => {
    const currentPassword = req.body.curr;
    const newPassword = req.body.newPass;
@@ -161,9 +177,19 @@ app.post('/api/v1/key/update', (req, res) => {
  * -------------------------
  */
 app.get('/', (req, res) => {
+    initCheck(res);
+
     hue.getAll((data) => {
         res.json(data);
     });
+});
+
+app.post('/auth', (req, res) => {
+  const key = req.body.key;
+  const ip = req.body.ip;
+
+  hue.init(key, ip);
+  res.json({success: true, msg: 'Hue has been initialized successfully!'})
 });
 
 app.use('/lights/action/loop', index);
@@ -172,6 +198,7 @@ app.get('/lights', (req, res) => {
     //hue has not been initialized
     if(typeof hue.getIp() === 'undefined' || typeof hue.getKey() === 'undefined') {
         hue.init(req.param('key'), req.param('ip'));
+        console.log(chalk.green('\u2713 Hue initialized successfully!'))
     }
 
     hue.getLights((data) => {
@@ -185,30 +212,41 @@ app.get('/lights', (req, res) => {
 
 
 app.get('/on', (req, res) => {
+    initCheck(res);
+
    hue.allOn((data) => {
       res.json(data);
    });
 });
 
 app.get('/off', (req, res) => {
+    initCheck(res);
+
     hue.allOff((data) => {
         res.json(data);
     });
 });
 
 app.get('/color/:color', (req, res) => {
-   hue.setColorAll(req.param('color'), (data) => {
+    initCheck(res);
+
+    hue.setColorAll(req.param('color'), (data) => {
        res.json(data);
    });
 });
 
 app.get('/lights/:id', (req, res) => {
-   hue.getLight(req.param('id'), (data) => {
+    initCheck(res);
+
+
+    hue.getLight(req.param('id'), (data) => {
       res.json(data);
    });
 });
 
 app.get('/lights/:id/color/:color', (req, res) => {
+    initCheck(res);
+
     const id = req.param('id');
     const color = req.param('color');
 
@@ -218,11 +256,15 @@ app.get('/lights/:id/color/:color', (req, res) => {
 });
 
 app.get('/sync', (req, res) => {
+    initCheck(res);
+
     res.json(hue.sync());
 });
 
 app.post('/lights/:id/brightness/', (req, res) => {
-   const value = req.body.bri;
+    initCheck(res);
+
+    const value = req.body.bri;
 
    hue.setBrightness(req.param('id'), value, (data) => {
        res.json(data);
@@ -230,6 +272,8 @@ app.post('/lights/:id/brightness/', (req, res) => {
 });
 
 app.post('/lights/action/brightness/', (req, res) => {
+    initCheck(res);
+
     const value = req.body.bri;
 
     hue.setAllBrightness(value, (data) => {
@@ -238,6 +282,7 @@ app.post('/lights/action/brightness/', (req, res) => {
 });
 
 app.post('/lights/action/flash', (req, res) => {
+    initCheck(res);
 
     req.body.lights.forEach(light => {
        hue.alert(light.id, (res) => {console.log(res)});
@@ -247,7 +292,9 @@ app.post('/lights/action/flash', (req, res) => {
 });
 
 app.post('/lights/action/on', (req, res) => {
-   const ids = req.body.ids;
+    initCheck(res);
+
+    const ids = req.body.ids;
 
     if(typeof ids !== 'undefined' && ids.length > 0) {
         ids.map(id => {
@@ -263,6 +310,8 @@ app.post('/lights/action/on', (req, res) => {
 
 
 app.post('/lights/action/off', (req, res) => {
+    initCheck(res);
+
     const ids = req.body.ids;
 
     if(typeof ids !== 'undefined' && ids.length > 0) {
@@ -278,6 +327,8 @@ app.post('/lights/action/off', (req, res) => {
 });
 
 app.post('/lights/action/color', (req, res) => {
+    initCheck(res);
+
     const ids = req.body.ids;
     const color = req.body.color;
 
@@ -294,6 +345,8 @@ app.post('/lights/action/color', (req, res) => {
 });
 
 app.post('/lights/action/loop', (req, res) => {
+    initCheck(res);
+
     const ids = req.body.ids;
 
     if(typeof ids !== 'undefined' && ids.length > 0) {
