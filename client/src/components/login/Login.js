@@ -5,7 +5,6 @@ import React, {Component} from 'react';
 import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import AppBar from 'material-ui/AppBar';
-import IconButton from 'material-ui/IconButton';
 import {Redirect} from 'react-router-dom';
 
 export default class Login extends Component {

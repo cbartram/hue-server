@@ -40,6 +40,8 @@ export default class Profile extends Component {
           case "confirm":
               this.setState({confirm: value});
               break;
+          default:
+              break;
       }
     };
 

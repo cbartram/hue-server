@@ -6,7 +6,6 @@ import TextField from 'material-ui/TextField';
 import RaisedButton from 'material-ui/RaisedButton';
 import AppBar from 'material-ui/AppBar';
 import {Redirect} from 'react-router-dom';
-import IconButton from 'material-ui/IconButton';
 
 export default class Signup extends Component {
     constructor() {
@@ -51,17 +50,12 @@ export default class Signup extends Component {
         })
     };
 
-    handleBackClick = () => {
-        console.log('Clicked');
-        this.setState({redirect: true});
-    };
 
     render() {
         return (
             <div className="container-fluid">
                 <AppBar
                     title="Signup"
-                    iconClassNameLeft={<IconButton onClick={this.handleBackClick} />}
                 />
                 <div className="row">
                     <div className="col-md-4 col-md-offset-5">

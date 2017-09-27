@@ -4,7 +4,7 @@
 import React, {Component} from 'react';
 import '../css/LoginPrompt.css';
 import RaisedButton from 'material-ui/RaisedButton';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 
 
