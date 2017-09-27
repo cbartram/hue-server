@@ -11,7 +11,6 @@ module.exports = (passport) => {
     });
 
     passport.deserializeUser(function(user, done) {
-        console.log('User is being deserialized');
         User.findOne({username: user.username}, function(err, user) {
             done(err, user);
         });
@@ -75,11 +74,9 @@ module.exports = (passport) => {
             }
 
             req.login(user, function(err) {
-                if (err) {
-                    done(err);
-                } else {
-                    return done(null, user);
-                }
+                if (err) done(err);
+
+                return done(null, user);
             });
 
         });

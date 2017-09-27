@@ -62,13 +62,13 @@ app.use((req, res, next) => {
  * ------------------------------------
  */
 //Signup Authentication Routes
-app.get('/signup/failure', (req, res) => { res.json({success: false, msg: 'Invalid Credentials Supplied'})});
+app.get('/signup/failure', (req, res) => res.json({success: false, msg: 'Invalid Credentials Supplied'}));
 app.post('/signup', passport.authenticate('local-signup', { failureRedirect: '/signup/failure'}), (req, res) => {
     res.json({success: true, user: req.user });
 });
 
 //Login Authentication Routes
-app.get('/login/failure', (req, res) => { res.json({success: false, msg: 'Invalid Credentials Supplied'})});
+app.get('/login/failure', (req, res) => res.json({success: false, msg: 'Invalid Credentials Supplied'}));
 app.post('/login', passport.authenticate('local-login', { failureRedirect: '/login/failure' }), (req, res) => {
     //Ensure the user is setup so null values are not passed into hue
     if(!req.user.setupRequired) {
@@ -195,21 +195,20 @@ app.post('/auth', (req, res) => {
 app.use('/lights/action/loop', index);
 
 app.get('/lights', (req, res) => {
-    //hue has not been initialized
-    if(typeof hue.getIp() === 'undefined' || typeof hue.getKey() === 'undefined') {
-        hue.init(req.param('key'), req.param('ip'));
-        console.log(chalk.green('\u2713 Hue initialized successfully!'))
+    //Hue has not been initialized
+    if(!hue.isInit()) {
+        hue.init(req.query.key, req.query.ip); //Init Hue
+        hue.isInit() ? //Check again to see if it was successfull
+            console.log(chalk.green('\u2713 Hue initialized successfully!')) :
+            console.log(chalk.red('\u2715 Philips Hue API is not initialized.'));
     }
 
     hue.getLights((data) => {
         if(data !== null && typeof data !== 'undefined') {
             res.json(data);
-        } else {
-            res.json({});
         }
     });
 });
-
 
 app.get('/on', (req, res) => {
     initCheck(res);
@@ -230,7 +229,7 @@ app.get('/off', (req, res) => {
 app.get('/color/:color', (req, res) => {
     initCheck(res);
 
-    hue.setColorAll(req.param('color'), (data) => {
+    hue.setColorAll(req.params.color, (data) => {
        res.json(data);
    });
 });
@@ -239,7 +238,7 @@ app.get('/lights/:id', (req, res) => {
     initCheck(res);
 
 
-    hue.getLight(req.param('id'), (data) => {
+    hue.getLight(req.params.id, (data) => {
       res.json(data);
    });
 });
@@ -247,8 +246,8 @@ app.get('/lights/:id', (req, res) => {
 app.get('/lights/:id/color/:color', (req, res) => {
     initCheck(res);
 
-    const id = req.param('id');
-    const color = req.param('color');
+    const id = req.params.id;
+    const color = req.params.color;
 
     hue.setColorHex(id, color, (data) => {
         res.json(data);
@@ -266,7 +265,7 @@ app.post('/lights/:id/brightness/', (req, res) => {
 
     const value = req.body.bri;
 
-   hue.setBrightness(req.param('id'), value, (data) => {
+   hue.setBrightness(req.params.id, value, (data) => {
        res.json(data);
    })
 });
@@ -285,7 +284,8 @@ app.post('/lights/action/flash', (req, res) => {
     initCheck(res);
 
     req.body.lights.forEach(light => {
-       hue.alert(light.id, (res) => {console.log(res)});
+        //TODO we should be referencing the hue id (1, 2, 3) but light.id is actually referencing the Hue's unique id aa:71:b3:u8 etc...
+       hue.alert(light.id, (res) => console.log(res));
     });
 
    res.json({success: true, lights: req.body.lights});

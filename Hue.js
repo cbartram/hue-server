@@ -33,14 +33,6 @@ class Hue {
     }
 
     /**
-     * Returns true if the API is initialized and false otherwise
-     * @returns {boolean}
-     */
-    isInit() {
-      return !(typeof this.key === 'undefined' || typeof this.ip === 'undefined');
-    }
-
-    /**
      * Returns the Hue Bridge Ip address
      * @returns {*}
      */
@@ -48,6 +40,13 @@ class Hue {
         return this.ip;
     }
 
+    /**
+     * Returns true if the API is initialized and false otherwise
+     * @returns {boolean}
+     */
+    isInit() {
+        return !(typeof this.key === 'undefined' || typeof this.ip === 'undefined');
+    }
 
 
     /**

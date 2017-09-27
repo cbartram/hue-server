@@ -126,20 +126,6 @@ class App extends Component {
     };
 
     /**
-     * Turns all the lights on
-     */
-    on = () => {
-        hueAPI.on();
-    };
-
-    /**
-     * Turns all Lights off
-     */
-    off = () => {
-        hueAPI.off();
-    };
-
-    /**
      * Set the brightness for each light
      * @param e Event event object e
      * @param value int value between [0, 254]
@@ -172,10 +158,10 @@ class App extends Component {
                                         <RaisedButton label="Flash" onClick={this.flash} />
                                     </div>
                                     <div className="col-md-3">
-                                        <RaisedButton label="On" onClick={this.on} />
+                                        <RaisedButton label="On" onClick={() => hueAPI.on()} />
                                     </div>
                                     <div className="col-md-3">
-                                        <RaisedButton label="Off" onClick={this.off}/>
+                                        <RaisedButton label="Off" onClick={() => hueAPI.off()}/>
                                     </div>
                                 </div>
                             </CardText>
@@ -191,9 +177,13 @@ class App extends Component {
                                     title="Profile"
                                 />
                                 <CardText>
-                                    <Link to="/profile">
-                                        <RaisedButton label="Profile" primary={true} />
-                                    </Link>
+                                    <div className="row">
+                                        <div className="col-md-2">
+                                            <Link to="/profile">
+                                                <RaisedButton label="Profile" primary={true} />
+                                            </Link>
+                                        </div>
+                                    </div>
                                 </CardText>
                             </Card>
                         </div>
