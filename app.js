@@ -93,14 +93,17 @@ app.post('/password/update', (req, res) => {
            //Persist User creds
            user.save((err) => {
                if(err) {
-                   console.log(err);
+                   console.log(chalk.red('\u2715 Failed to save User to database'));
                    res.json({success: false, msg: 'Failed to Save User to the database'})
                }
+
+               console.log(chalk.green('\u2713 Password Updated Successfully'));
                res.json({success: true, user});
 
            });
 
        } else {
+           console.log(chalk.red('\u2715 Password does not match database'));
            res.json({success: false, msg: 'Your current password does not match our records.'})
        }
    });
@@ -161,14 +164,33 @@ app.post('/api/v1/key/update', (req, res) => {
        //Persist User creds
        user.save(function (err) {
             if(err) {
-                console.log(err);
-               res.json({success: false, msg: 'Failed to Save User to the database'})
+                console.log(chalk.red('\u2715 Failed to save User to database'));
+                res.json({success: false, msg: 'Failed to Save User to the database'})
             }
+           console.log(chalk.green('\u2713 User account unlinked successfully'));
            res.json({success: true, user});
-
        });
     });
 
+});
+
+app.post('/unlink', (req, res) => {
+   User.findOne({username: req.body.username.username}, (err, user) => {
+      if(err) {
+          res.json({success: false, msg: err});
+      }
+
+      user.key = null;
+      user.ip = null;
+      user.setupRequired = true;
+
+      user.save((err) => {
+          if(err) {
+              console.log(chalk.red('\u2715 Failed to save User to database'))
+          }
+          res.json({success: true, user});
+      })
+   });
 });
 
 /**
@@ -236,7 +258,6 @@ app.get('/color/:color', (req, res) => {
 
 app.get('/lights/:id', (req, res) => {
     initCheck(res);
-
 
     hue.getLight(req.params.id, (data) => {
       res.json(data);

@@ -20,3 +20,7 @@
 .success {
     color: rgb(0, 202, 114);
 }
+
+.danger {
+    background-color: #ff1c4d;
+}

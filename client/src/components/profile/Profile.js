@@ -15,6 +15,7 @@ export default class Profile extends Component {
 
         this.state = {
             user: JSON.parse(sessionStorage.getItem('user')),
+            showUnlink: false, //Wether or not to show the unlink button
             errorMessage: {currPass: '', newPass: '', confirm: ''},
             currPass: '',
             newPass: '',
@@ -22,6 +23,14 @@ export default class Profile extends Component {
             successMessage: '',
         }
     }
+
+
+    componentDidMount = () => {
+      //Show the unlink button if the user is setup
+      if(!this.state.user.setupRequired) {
+          this.setState({showUnlink: true});
+      }
+    };
 
     /**
      * Handles the current password field being changed
@@ -91,6 +100,29 @@ export default class Profile extends Component {
            //Something went wrong with the passwords matching
            this.setState({errorMessage: {newPass: 'New passwords do not match', currPass: '', confirm: 'New passwords do not match'}});
        }
+    };
+
+    /**
+     * Handles removing the api key, and ip from the user account
+     */
+    handleUnlink = () => {
+        //Unlink the users account
+        fetch('/unlink', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                username: this.state.user
+            })
+        }).then(res => res.json()).then((json) => {
+            if(json.success) {
+                sessionStorage.removeItem('user');
+                sessionStorage.setItem('user', JSON.stringify(json.user));
+                this.setState({showUnlink: false});
+            }
+        });
     };
 
 
@@ -192,6 +224,23 @@ export default class Profile extends Component {
                                     onChange={(e, value) => this.handleChange(e, value, "confirm")}
                                 />
                                 <RaisedButton label="Submit" onClick={this.handleSubmit} />
+
+                                <div className="row">
+                                    <div className="col-md-10">
+                                        {
+                                            this.state.showUnlink === true ?
+                                                <div>
+                                                    <h4>Danger Zone</h4>
+                                                    <RaisedButton secondary={true} label="Unlink Account" onClick={this.handleUnlink} />
+                                                </div>
+                                            : <div>
+                                                <h4>Setup Account</h4>
+                                                <Link to="/setup"><RaisedButton primary={true} label="Setup" /></Link>
+                                            </div>
+                                        }
+
+                                    </div>
+                                </div>
                             </CardText>
                         </Card>
                     </div>
