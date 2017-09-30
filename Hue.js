@@ -183,9 +183,10 @@ class Hue {
     /**
      * Sets the Light in a Rainbow Color Loop
      * @param id array of Integer Id's [1, 2, 3]
+     * @param sync boolean true if lights should be synced to white before looped
      */
-    setColorLoop(id) {
-        this.sync();
+    setColorLoop(id, sync) {
+        sync === true && this.sync();
 
         id.map(d => { requestify.put(`http://${this.ip}/api/${this.key}/lights/${d}/state/`, { on: true, effect:'colorloop' }).then((res) => {}); });
         return { state: 'looping', lights: id }

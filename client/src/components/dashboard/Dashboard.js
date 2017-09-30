@@ -166,6 +166,9 @@ class App extends Component {
                                     <div className="col-md-3">
                                         <RaisedButton label="Off" onClick={() => hueAPI.lightOff(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
                                     </div>
+                                    <div className="col-md-3">
+                                        <RaisedButton label="Color Loop" onClick={() => hueAPI.colorLoop(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
+                                    </div>
                                 </div>
                             </CardText>
                         </Card>

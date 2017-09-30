@@ -367,7 +367,7 @@ app.post('/lights/action/loop', (req, res) => {
     const ids = req.body.ids;
 
     if(typeof ids !== 'undefined' && ids.length > 0) {
-        res.json(hue.setColorLoop(ids));
+        res.json(hue.setColorLoop(ids, true)); //TODO Should we sync the lights?
     } else {
         res.json({error: 'No "ids" array provided in body of POST Request'})
     }
