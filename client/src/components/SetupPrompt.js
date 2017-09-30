@@ -37,6 +37,20 @@ export default class SetupPrompt extends Component {
                         </div>
                     </div>
                 </div>
+                <div className="row">
+                    <div className="col-md-12">
+                        <div className="row">
+                            <div className="col-md-6 col-md-offset-3">
+                                <h3 className="header-text">Or</h3>
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col-md-2 col-md-offset-5">
+                                <Link to="/profile"><RaisedButton label="Profile" secondary={true} className="button-primary" /></Link>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         );
     }

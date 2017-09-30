@@ -1,0 +1,28 @@
+[
+  {
+    "key": 1,
+    "name": "Left Light",
+    "id": "fa81gh28sJkai9a",
+    "state": {
+      "on": false,
+      "selected": true,
+      "reachable": true,
+      "hue": 100,
+      "sat": 212,
+      "bri": 120
+    }
+  },
+  {
+    "key": 2,
+    "name": "Right Light",
+    "id": "fa81da8sb1b2alJkai9a",
+    "state": {
+      "on": false,
+      "selected": true,
+      "reachable": true,
+      "hue": 100,
+      "sat": 212,
+      "bri": 120
+    }
+  }
+]

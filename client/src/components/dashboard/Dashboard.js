@@ -2,8 +2,10 @@ import React, { Component } from 'react'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../css/App.css';
 import _ from 'lodash';
-import { CirclePicker } from 'react-color';
+import { ChromePicker } from 'react-color';
 import {Link} from 'react-router-dom';
+
+import Data from '../../data.json';
 
 //Material UI
 import RaisedButton from 'material-ui/RaisedButton';
@@ -24,7 +26,7 @@ class App extends Component {
         this.state = {
             lights: [], //Array of Light Objects
             brightness: 100, //Value for the Slider's brightness
-            color: null, //Current color selected by the color picker (an object of colors)
+            color: '#FFFFFF', //Current color selected by the color picker (an object of colors)
             user: null,
             isLoggedIn: false,
             setupRequired: false,
@@ -84,9 +86,7 @@ class App extends Component {
                     result.push(obj);
                 }
             }
-            this.setState({lights: result }, () => {
-                console.log(this.state.lights);
-            });
+            this.setState({lights: result });
         });
 
 
@@ -121,7 +121,10 @@ class App extends Component {
         this.setState({color}, () => {
             //Strip hash sign away from color
             color = color.hex.substr(1, color.length);
-            hueAPI.setColor(color);
+
+            //From Light state filter for only ids where light is active
+            const ids = this.state.lights.filter(o => o.state.selected === true).map(c => c.key);
+            hueAPI.setLightColor(color, ids);
         });
     };
 
@@ -131,9 +134,9 @@ class App extends Component {
      * @param value int value between [0, 254]
      */
     handleBrightness = (e, value) => {
-        this.state.lights.forEach(light => {
-            hueAPI.setBrightness(light.key, value);
-        });
+
+        const ids = this.state.lights.filter(o => o.state.selected === true).map(c => parseInt(c.key));
+        hueAPI.setBrightness(ids, value, (res) => {});
 
         this.setState({ brightness: value });
     };
@@ -152,16 +155,16 @@ class App extends Component {
                     <div className="col-md-5 light-list">
                         <Card>
                             <CardText>
-                                <CirclePicker onChangeComplete={this.handleColorChange} />
+                                <ChromePicker disableAlpha color={this.state.color} onChangeComplete={(color) => this.handleColorChange(color)} />
                                 <div className="row padding-top">
                                     <div className="col-md-3">
                                         <RaisedButton label="Flash" onClick={this.flash} />
                                     </div>
                                     <div className="col-md-3">
-                                        <RaisedButton label="On" onClick={() => hueAPI.on()} />
+                                        <RaisedButton label="On" onClick={() => hueAPI.lightOn(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))} />
                                     </div>
                                     <div className="col-md-3">
-                                        <RaisedButton label="Off" onClick={() => hueAPI.off()}/>
+                                        <RaisedButton label="Off" onClick={() => hueAPI.lightOff(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
                                     </div>
                                 </div>
                             </CardText>

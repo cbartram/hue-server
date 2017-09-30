@@ -228,6 +228,8 @@ app.get('/lights', (req, res) => {
     hue.getLights((data) => {
         if(data !== null && typeof data !== 'undefined') {
             res.json(data);
+        } else {
+            res.json({success: false, lights: []});
         }
     });
 });
@@ -281,32 +283,26 @@ app.get('/sync', (req, res) => {
     res.json(hue.sync());
 });
 
-app.post('/lights/:id/brightness/', (req, res) => {
-    initCheck(res);
-
-    const value = req.body.bri;
-
-   hue.setBrightness(req.params.id, value, (data) => {
-       res.json(data);
-   })
-});
-
 app.post('/lights/action/brightness/', (req, res) => {
     initCheck(res);
 
     const value = req.body.bri;
+    const ids = req.body.ids;
 
-    hue.setAllBrightness(value, (data) => {
-        res.json(data);
-    })
+    console.log(ids);
+
+    ids.forEach(id => {
+        hue.setBrightness(id, value, (data) => {});
+    });
+
+    res.json({success:true, brightness: value, lights: ids});
 });
 
 app.post('/lights/action/flash', (req, res) => {
     initCheck(res);
 
     req.body.lights.forEach(light => {
-        //TODO we should be referencing the hue id (1, 2, 3) but light.id is actually referencing the Hue's unique id aa:71:b3:u8 etc...
-       hue.alert(light.id, (res) => console.log(res));
+       hue.alert(light.key, (res) => console.log(res));
     });
 
    res.json({success: true, lights: req.body.lights});
