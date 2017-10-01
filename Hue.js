@@ -153,6 +153,64 @@ class Hue {
     }
 
     /**
+     * Transitions a light from one color to a different color
+     * @param id
+     * @param primary
+     * @param secondary
+     * @param callback
+     */
+    transition(id, primary, secondary, callback) {
+        let rgb = convert.hex.rgb(primary);
+        let xy = this.toXY(rgb[0], rgb[1], rgb[2]);
+
+        let rgb2 = convert.hex.rgb(secondary);
+        let xy2 = this.toXY(rgb2[0], rgb2[1], rgb2[2]);
+
+        //First request changes to the primary color
+        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, xy}).then((response) => {
+            //then transition to the secondary color
+            requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, xy2, transitiontime: 40}).then((response) => {
+                callback(response.getBody())
+            });
+        });
+    }
+
+    /**
+     * Cancels a currently running color loop
+     * @param id
+     * @param callback
+     */
+    cancelColorLoop(id, callback) {
+        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, effect: 'none'}).then((response) => {
+            callback(response.getBody())
+        });
+    }
+
+    /**
+     * Custom method which takes in a series of key value object properties
+     * which will be passed on to the PUT request. This method allows the light
+     * specified to do anything the user wants within the bounds of philips Hue's
+     * capabilities
+     * @param id Light id (1,2,3)
+     * @param props Object a series of KV pair's
+     * @param callback callback function
+     *
+     * Example of the props param:
+     * {
+     *  on: true,
+     *  hue: 220,
+     *  bri: 254,
+     *  transitiontime: 20
+     *  effect: 'none'
+     * }
+     */
+    custom(id, props, callback) {
+        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, props).then((response) => {
+            callback(response.getBody())
+        });
+    }
+
+    /**
      * Turns all the Lights on
      * @param callback
      */
@@ -254,6 +312,7 @@ class Hue {
 
     /**
      * Sets the Lights color to Hex defined value
+     * Note that this will automatically cancel any currently running color loop
      * @param id Integer light id
      * @param color String hex color including # ex #00ff00
      * @param callback
@@ -262,7 +321,7 @@ class Hue {
         let rgb = convert.hex.rgb(color);
         let xy = this.toXY(rgb[0], rgb[1], rgb[2]);
 
-        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, xy }).then((res) => {
+        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, xy, effect:'none' }).then((res) => {
            callback(res.getBody());
         });
     }
@@ -276,7 +335,7 @@ class Hue {
     setColorRgb(id, color, callback) {
         let xy = this.toXY(color[0], color[1], color[2]);
 
-        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, xy }).then((res) => {
+        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, xy, effect:'none' }).then((res) => {
             callback(res.getBody());
         });
     }
@@ -291,7 +350,7 @@ class Hue {
         color = convert.hsl.rgb(color);
         let xy = this.toXY(color[0], color[1], color[2]);
 
-        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, xy }).then((res) => {
+        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, xy, effect:'none' }).then((res) => {
             callback(res.getBody());
         });
     }

@@ -343,6 +343,26 @@ app.post('/lights/action/off', (req, res) => {
     }
 });
 
+app.post('/lights/action/transition', (req, res) => {
+   initCheck(res);
+
+    const ids = req.body.ids;
+    const primary = req.body.primary;
+    const secondary = req.body.secondary;
+
+    if(typeof ids !== 'undefined' && ids.length > 0) {
+        ids.map(id => {
+            hue.transition(id, primary, secondary, () => {})
+        });
+
+        res.json({success: true});
+
+    } else {
+        res.json({error: 'No "ids" array provided in body of POST Request'})
+    }
+
+});
+
 app.post('/lights/action/color', (req, res) => {
     initCheck(res);
 

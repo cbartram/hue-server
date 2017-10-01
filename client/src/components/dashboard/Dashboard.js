@@ -155,20 +155,29 @@ class App extends Component {
                     <div className="col-md-5 light-list">
                         <Card>
                             <CardText>
-                                <ChromePicker disableAlpha color={this.state.color} onChangeComplete={(color) => this.handleColorChange(color)} />
                                 <div className="row padding-top">
-                                    <div className="col-md-3">
-                                        <RaisedButton label="Flash" onClick={this.flash} />
+                                    <div className="col-md-6">
+                                        <ChromePicker disableAlpha color={this.state.color} onChangeComplete={(color) => this.handleColorChange(color)} />
                                     </div>
-                                    <div className="col-md-3">
-                                        <RaisedButton label="On" onClick={() => hueAPI.lightOn(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))} />
+                                    <div className="col-md-6">
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <RaisedButton label="Off" onClick={() => hueAPI.lightOff(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
+                                            </div>
+                                            <div className="col-md-6 padding-top">
+                                                <RaisedButton label="On" onClick={() => hueAPI.lightOn(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))} />
+                                            </div>
+                                        </div>
+                                        <div className="row">
+                                            <div className="col-md-6">
+                                                <RaisedButton label="Flash" onClick={this.flash} />
+                                            </div>
+                                            <div className="col-md-6" style={{marginTop:20}}>
+                                                <RaisedButton label="Color Loop" onClick={() => hueAPI.colorLoop(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="col-md-3">
-                                        <RaisedButton label="Off" onClick={() => hueAPI.lightOff(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
-                                    </div>
-                                    <div className="col-md-3">
-                                        <RaisedButton label="Color Loop" onClick={() => hueAPI.colorLoop(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
-                                    </div>
+                                    <RaisedButton label="transition" onClick={() => hueAPI.transition(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), "#ff00fa", "#00ff00", () => {})} />
                                 </div>
                             </CardText>
                         </Card>
