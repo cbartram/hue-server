@@ -142,7 +142,7 @@ export default class Profile extends Component {
             <div className="container-fluid">
                 <AppBar/>
                 <div className="row">
-                    <div className="col-md-6 col-md-offset-1 card-padding">
+                    <div className="col-md-6 col-sm-6 col-sm-offset-1 col-md-offset-1 card-padding">
                         <Card>
                             <CardHeader
                                 title={this.state.user.username}
@@ -180,7 +180,7 @@ export default class Profile extends Component {
                             </CardText>
                         </Card>
                     </div>
-                    <div className="col-md-3 padding-top">
+                    <div className="col-md-3 col-sm-6 col-sm-offset-1 padding-top">
                         <Card>
                             <CardHeader
                                 title="Actions"
@@ -223,7 +223,9 @@ export default class Profile extends Component {
                                     floatingLabelFixed={false}
                                     onChange={(e, value) => this.handleChange(e, value, "confirm")}
                                 />
-                                <RaisedButton label="Submit" onClick={this.handleSubmit} />
+                                <div style={{clear:'left', marginTop:15, marginBottom:20}}>
+                                    <RaisedButton label="Submit" onClick={this.handleSubmit} />
+                                </div>
 
                                 <div className="row">
                                     <div className="col-md-10">

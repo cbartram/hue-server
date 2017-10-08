@@ -62,8 +62,12 @@ export default class Login extends Component {
                     title="Login"
                 />
                 <div className="row">
-                    <div className="col-md-4 col-md-offset-5">
-                        <h3>Login</h3>
+                    <div className="col-md-4 col-lg-3 col-md-offset-5">
+                        <div className="row">
+                            <div className="col-md-4 col-lg-4 col-lg-offset-3 col-md-offset-6" style={{marginTop:'20px'}}>
+                                <h3>Login</h3>
+                            </div>
+                        </div>
                         <TextField
                             hintText="Username"
                             floatingLabelText="Username"
@@ -78,11 +82,11 @@ export default class Login extends Component {
                             type="password"
                             onChange={(e, value) => this.handlePasswordChange(value)}
                         />
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col-md-4 col-md-offset-6" style={{marginTop:'20px'}}>
-                        <RaisedButton label="Submit" onClick={this.handleClick} />
+                        <div className="row">
+                            <div className="col-md-4 col-lg-4 col-lg-offset-3 col-md-offset-6" style={{marginTop:'20px'}}>
+                                <RaisedButton label="Submit" onClick={this.handleClick} />
+                            </div>
+                        </div>
                     </div>
                 </div>
                 { this.state.redirect === false ? null : <Redirect to="/" /> }

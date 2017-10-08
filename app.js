@@ -400,5 +400,20 @@ app.post('/lights/action/loop', (req, res) => {
     }
 });
 
+app.post('/lights/action/loop/cancel', (req, res) => {
+    initCheck(res);
+
+    const ids = req.body.ids;
+
+    if(typeof ids !== 'undefined' && ids.length > 0) {
+
+        hue.cancelColorLoop(ids);
+
+        res.json({success: true});
+    } else {
+        res.json({error: 'No "ids" array provided in body of POST Request'})
+    }
+});
+
 
 module.exports = app;

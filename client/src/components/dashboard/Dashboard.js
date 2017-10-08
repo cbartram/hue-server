@@ -28,6 +28,7 @@ class App extends Component {
             brightness: 100, //Value for the Slider's brightness
             color: '#FFFFFF', //Current color selected by the color picker (an object of colors)
             user: null,
+            isColorLooping: false,
             isLoggedIn: false,
             setupRequired: false,
         }
@@ -113,6 +114,17 @@ class App extends Component {
         }
     };
 
+    handleColorLoop = () => {
+      if(this.state.isColorLooping) {
+          //cancel color Loop
+          hueAPI.cancelColorLoop(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), (res) => {});
+      } else {
+          hueAPI.colorLoop(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), (res) => {})
+      }
+
+      this.setState((state) => ({isColorLooping : !state.isColorLooping}) );
+    };
+
     /**
      * Handles Color picker being changed
      * @param color String hex color (including the #)
@@ -149,7 +161,7 @@ class App extends Component {
                 <div>
                    <div className="row">
                     {/* Houses the List of Lights */}
-                    <div className="col-md-5 col-md-offset-1 light-list">
+                    <div className="col-md-3 col-md-offset-1 light-list">
                         <LightList handleCheck={(e, checked, id) => this.handleCheck(e, checked, id) } lights={this.state.lights}/>
                     </div>
                     <div className="col-md-5 light-list">
@@ -161,14 +173,14 @@ class App extends Component {
                                     </div>
                                     <div className="col-md-6">
                                         <div className="row">
-                                            <div className="col-md-6">
+                                            <div className="col-md-4">
                                                 <RaisedButton label="Off" onClick={() => hueAPI.lightOff(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), (res) => {
                                                     if(res.type === 'hue_init_fail') {
                                                         console.log("Hue failed to initialize");
                                                     }
                                                 })}/>
                                             </div>
-                                            <div className="col-md-6 padding-top">
+                                            <div className="col-md-8">
                                                 <RaisedButton label="On" onClick={() => hueAPI.lightOn(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), (res) => {
                                                     if(res.type === 'hue_init_fail') {
                                                         console.log("Hue failed to initialize");
@@ -177,15 +189,14 @@ class App extends Component {
                                             </div>
                                         </div>
                                         <div className="row">
-                                            <div className="col-md-6">
+                                            <div className="col-md-4 padding-top">
                                                 <RaisedButton label="Flash" onClick={this.flash} />
                                             </div>
-                                            <div className="col-md-6" style={{marginTop:20}}>
-                                                <RaisedButton label="Color Loop" onClick={() => hueAPI.colorLoop(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), (res) => {})}/>
+                                            <div className="col-md-8 padding-top">
+                                                <RaisedButton label={this.state.isColorLooping ? "Cancel Loop" : "Color Loop"} onClick={this.handleColorLoop}/>
                                             </div>
                                         </div>
                                     </div>
-                                    <RaisedButton label="transition" onClick={() => hueAPI.transition(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), "#ff00fa", "#00ff00", () => {})} />
                                 </div>
                             </CardText>
                         </Card>
@@ -193,14 +204,14 @@ class App extends Component {
                    </div>
                     {/* Card for Brightness */}
                     <div className="row">
-                        <div className="col-md-5 col-md-offset-1">
+                        <div className="col-md-3 col-md-offset-1">
                             <Card>
                                 <CardHeader
                                     style={{float:'left'}}
                                     title="Profile"
                                 />
                                 <CardText>
-                                    <div className="row">
+                                    <div className="row" style={{clear:'left'}}>
                                         <div className="col-md-2">
                                             <Link to="/profile">
                                                 <RaisedButton label="Profile" primary={true} />
@@ -211,11 +222,11 @@ class App extends Component {
                             </Card>
                         </div>
 
-                        <div className="col-md-5 light-list">
+                        <div className="col-md-3 light-list">
                             <Card>
                                 <CardHeader
                                     style={{float:'left'}}
-                                    title="Brightness"
+                                    title={`Brightness - ${this.state.brightness}%`}
                                 />
                                 <CardText>
                                     <Slider

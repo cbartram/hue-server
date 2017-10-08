@@ -180,10 +180,15 @@ class Hue {
      * @param id
      * @param callback
      */
-    cancelColorLoop(id, callback) {
-        requestify.put(`http://${this.ip}/api/${this.key}/lights/${id}/state/`, { on: true, effect: 'none'}).then((response) => {
-            callback(response.getBody())
+    cancelColorLoop(id) {
+        let responses = [];
+
+        id.map(d => {
+            requestify.put(`http://${this.ip}/api/${this.key}/lights/${d}/state/`, { effect: "none"}).then((response) => {
+                //callback(response.getBody())
+            });
         });
+
     }
 
     /**

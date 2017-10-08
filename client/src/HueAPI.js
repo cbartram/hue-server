@@ -60,6 +60,24 @@ module.exports = {
         });
     },
 
+    cancelColorLoop(ids, callback) {
+        fetch(`${BASE_URL}/lights/action/loop/cancel`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                ids,
+            })
+        }).then((response) => response.json())
+            .then((responseJson) => {
+                callback(responseJson);
+            }).catch((error) => {
+            console.error(error);
+        });
+    },
+
     /**
      * Flashes the given light quickly
      * @param lights
