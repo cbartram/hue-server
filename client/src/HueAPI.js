@@ -106,8 +106,9 @@ module.exports = {
     /**
      * Turns a selected set of lights on
      * @param ids array of integer light key's
+     * @param callback Callback function
      */
-    lightOn(ids) {
+    lightOn(ids, callback) {
         fetch(`${BASE_URL}/lights/action/on`, {
             method: 'POST',
             headers: {
@@ -115,7 +116,8 @@ module.exports = {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ids})
-        })
+        }).then(response => response.json())
+            .then(resJSON => callback(resJSON));
     },
 
     /**
@@ -134,8 +136,9 @@ module.exports = {
     /**
      * Turns a selected set of lights off
      * @param ids array of integer light key's
+     * @param callback Callback function
      */
-    lightOff(ids) {
+    lightOff(ids, callback) {
         fetch(`${BASE_URL}/lights/action/off`, {
             method: 'POST',
             headers: {
@@ -143,7 +146,8 @@ module.exports = {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({ids})
-        })
+        }).then(response => response.json())
+            .then(resJSON => callback(resJSON));
     },
 
     /**

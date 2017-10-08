@@ -245,9 +245,14 @@ class Hue {
      */
     setColorLoop(id, sync) {
         sync === true && this.sync();
+        let responses = [];
 
-        id.map(d => { requestify.put(`http://${this.ip}/api/${this.key}/lights/${d}/state/`, { on: true, effect:'colorloop' }).then((res) => {}); });
-        return { state: 'looping', lights: id }
+        id.map(d => {
+            requestify.put(`http://${this.ip}/api/${this.key}/lights/${d}/state/`, { effect:"colorloop" }).then((res) => {
+                responses[d] = res;
+            });
+        });
+
     };
 
     /**

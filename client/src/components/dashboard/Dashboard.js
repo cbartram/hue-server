@@ -162,10 +162,18 @@ class App extends Component {
                                     <div className="col-md-6">
                                         <div className="row">
                                             <div className="col-md-6">
-                                                <RaisedButton label="Off" onClick={() => hueAPI.lightOff(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
+                                                <RaisedButton label="Off" onClick={() => hueAPI.lightOff(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), (res) => {
+                                                    if(res.type === 'hue_init_fail') {
+                                                        console.log("Hue failed to initialize");
+                                                    }
+                                                })}/>
                                             </div>
                                             <div className="col-md-6 padding-top">
-                                                <RaisedButton label="On" onClick={() => hueAPI.lightOn(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))} />
+                                                <RaisedButton label="On" onClick={() => hueAPI.lightOn(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), (res) => {
+                                                    if(res.type === 'hue_init_fail') {
+                                                        console.log("Hue failed to initialize");
+                                                    }}
+                                                 )} />
                                             </div>
                                         </div>
                                         <div className="row">
@@ -173,7 +181,7 @@ class App extends Component {
                                                 <RaisedButton label="Flash" onClick={this.flash} />
                                             </div>
                                             <div className="col-md-6" style={{marginTop:20}}>
-                                                <RaisedButton label="Color Loop" onClick={() => hueAPI.colorLoop(this.state.lights.filter(o => o.state.selected === true).map(c => c.key))}/>
+                                                <RaisedButton label="Color Loop" onClick={() => hueAPI.colorLoop(this.state.lights.filter(o => o.state.selected === true).map(c => c.key), (res) => {})}/>
                                             </div>
                                         </div>
                                     </div>

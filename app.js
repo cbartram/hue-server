@@ -9,7 +9,6 @@ const requestify = require('requestify');
 const Hue = require('./Hue');
 const passport = require('passport');
 const mongoose = require('mongoose');
-const Logger = require('mongodb').Logger;
 const session = require('express-session');
 const _ = require('lodash');
 const User = require('./models/User');
@@ -20,8 +19,7 @@ const hue = new Hue(); //Hue API
 
 //Connect to Database
 mongoose.connect(`mongodb://cbartram:Swing4fence!@ds141514.mlab.com:41514/hue-database`, (err) => {
-    if(err) console.log(chalk.hex('#e81a00')('Failed to Connect to the Database....Check Wifi Connection'));
-
+    err ? console.log(chalk.hex('#e81a00')('\u2715 Failed to Connect to the Database....Check Wifi Connection')) : console.log(chalk.green('\u2713 Successfully connected to MongoDB'));
 });
 
 
@@ -36,12 +34,15 @@ app.use(passport.session());
 /**
  * Function to ensure Hue is initialized
  * before making calls to the API
- * @param res Express response object
  */
 const initCheck = (res) => {
     if(!hue.isInit()) {
         console.log(chalk.red('\u2715 Philips Hue API is not initialized.'));
-        res.json({success: false, msg: 'The Philips Hue API is not initialized make a POST request to /auth to initialize'});
+        res.json({
+            success: false,
+            type: 'hue_init_fail',
+            msg: 'The Philips Hue API is not initialized make a POST request to /auth to initialize'
+        });
     }
 };
 
@@ -211,7 +212,7 @@ app.post('/auth', (req, res) => {
   const ip = req.body.ip;
 
   hue.init(key, ip);
-  res.json({success: true, msg: 'Hue has been initialized successfully!'})
+  res.json({success: true, msg: '\u2713 Hue has been initialized successfully!'})
 });
 
 app.use('/lights/action/loop', index);
@@ -220,9 +221,12 @@ app.get('/lights', (req, res) => {
     //Hue has not been initialized
     if(!hue.isInit()) {
         hue.init(req.query.key, req.query.ip); //Init Hue
-        hue.isInit() ? //Check again to see if it was successfull
-            console.log(chalk.green('\u2713 Hue initialized successfully!')) :
+        if(hue.isInit()) { //Check again to see if it was successfull
+            console.log(chalk.green('\u2713 Hue initialized successfully!'))
+        } else {
             console.log(chalk.red('\u2715 Philips Hue API is not initialized.'));
+            res.json({success: false, type: 'hue_init_fail', msg: 'Your Session has Expired please refresh the page or login again to use the Hue Lights!'})
+        }
     }
 
     hue.getLights((data) => {
@@ -243,7 +247,7 @@ app.get('/on', (req, res) => {
 });
 
 app.get('/off', (req, res) => {
-    initCheck(res);
+    initCheck(json => res.json(json));
 
     hue.allOff((data) => {
         res.json(data);
@@ -302,7 +306,9 @@ app.post('/lights/action/flash', (req, res) => {
     initCheck(res);
 
     req.body.lights.forEach(light => {
-       hue.alert(light.key, (res) => console.log(res));
+        if(light.state.selected) {
+            hue.alert(light.key, (res) => console.log(res));
+        }
     });
 
    res.json({success: true, lights: req.body.lights});
@@ -387,7 +393,8 @@ app.post('/lights/action/loop', (req, res) => {
     const ids = req.body.ids;
 
     if(typeof ids !== 'undefined' && ids.length > 0) {
-        res.json(hue.setColorLoop(ids, true)); //TODO Should we sync the lights?
+        hue.setColorLoop(ids, false);
+        res.json({success: true});
     } else {
         res.json({error: 'No "ids" array provided in body of POST Request'})
     }
